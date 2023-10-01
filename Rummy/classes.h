@@ -14,6 +14,7 @@ const int tilesinstackno = 7;
 const int tilesno = 13;
 const int nono = 2;
 const int tilesingameno = 106;
+const int maxtilesonboard = 15;
 
 class Tile
 {
@@ -23,12 +24,14 @@ public:
 	int finalpoints;
 	int no;
 	bool atu;
+	bool move;
 
 	Tile(string type, int no) : type(type), no(no)
 	{
 		downpoints = 0;
 		finalpoints = 0;
 		atu = false;
+		move = true;
 	}
 
 	void virtual displayInfo() const
@@ -46,6 +49,16 @@ public:
 		downpoints = 0;
 		finalpoints = 0;
 		atu = false;
+		move = true;
+	}
+
+	static void SetMoveFalse(vector <Tile*>& tilesgiven)
+	{
+		for (const auto& tile : tilesgiven)
+		{
+			if(tile->type != "joker")
+				tile->move = false;
+		}
 	}
 
 	static void DisplayAtu(vector <Tile*>& alltiles)
@@ -59,6 +72,19 @@ public:
 				cout << endl;
 			}
 		}
+	}
+
+	static void DisplayMoveFalse(vector <Tile*> tiles)
+	{
+		cout << "Move False: "<<endl;
+		for (const auto& tile : tiles)
+		{
+			if (tile->move == false)
+			{
+				tile->displayInfo();
+			}
+		}
+		cout << endl;
 	}
 
 	static void DisplayTiles(vector <Tile*>& tiles)
@@ -110,6 +136,11 @@ public:
 	int virtual getnumber()
 	{
 		return 0;
+	}
+	
+	string virtual getcolour() 
+	{
+		return "";
 	}
 };
 
@@ -167,6 +198,11 @@ public:
 	int getnumber() override
 	{
 		return number;
+	}
+
+	string getcolour() override
+	{
+		return colour;
 	}
 };
 
@@ -311,6 +347,66 @@ public:
 		}
 		return players;
 	}
+
+	static Player* get_Player(int no, vector<Player*> players)
+	{
+		for (const auto& player : players)
+		{
+			if (no == player->playerno)
+			{
+				return player;
+			}
+		}
+
+	}
+
+	int getPlayerNumber()
+	{
+		int pnumber = 0;
+		string numberstring;
+		cout << "Number: ";
+		
+		cin >> numberstring;
+
+		try
+		{
+			pnumber = stoi(numberstring);
+		}
+		catch (exception& err)
+		{
+			cout << "Error occured. You must insert a number."<<endl;
+		}
+		
+		return pnumber;
+	}
+
+	string getPlayerColour()
+	{
+		string pcolour;
+		cout << "Colour: ";
+		cin >> pcolour;
+		return pcolour;
+	}
+
+	tuple<string, int, string> getPlayerInput()			// type, number, colour
+	{
+		// get Type:
+		string stringp;
+		cout << "Type: ";
+		cin >> stringp;
+
+		if (stringp == "joker")
+		{
+			return make_tuple("joker", 0, "");
+		}
+		else if (stringp == "normal")
+		{
+			int pnumber = getPlayerNumber();
+			string pcolour = getPlayerColour();
+			return make_tuple(stringp, pnumber, pcolour);
+		}
+		return make_tuple("notvalid", 0, "notvalid");
+	}
 };
 
 int Player::number_of_players = 0;
@@ -323,7 +419,6 @@ public:
 	Game()
 	{
 		multiplier = 1;
-
 	}
 
 	static vector <Tile*> DivideStacks(vector <vector<Tile*>> stacks, vector <Tile*>& alltiles, vector <Player*>& players)
@@ -332,6 +427,7 @@ public:
 
 		cout << "ATU: ";
 		stacks[stacks.size() - 1][0]->displayInfo(); cout << endl;
+		stacks[stacks.size() - 1][0]->move = false;					//do not allow atu to be moved
 
 		int pos = 1;
 		if (stacks[stacks.size() - 1][0]->type == "normal")
@@ -352,6 +448,7 @@ public:
 				{
 					pos = 0;
 				}
+				Tile::SetMoveFalse(stacks[pos]);
 				players[i]->playerboard->addtoBoard(stacks[pos]);
 				stacks.erase(stacks.begin() + pos);
 			}
@@ -373,10 +470,13 @@ public:
 			}
 			stacks.erase(stacks.begin() + pos);
 		}
+
+		// Set move
+
 		return queue;
 	}
 
-	static void Reset_finish(vector <Tile*>& alltiles, vector <Player*>& players)
+	static void Reset_Match(vector <Tile*>& alltiles, vector <Player*>& players)
 	{
 		for (const auto& tile : alltiles)
 		{
@@ -386,6 +486,63 @@ public:
 		{
 			player->ResetPlayer();
 		}
+	}
+	
+	static Tile* CheckTile(string ptype, int pnumber, string pcolour, vector<Tile*> playertiles)
+	{
+		for (const auto& tile : playertiles)
+		{
+			if (ptype == "joker")
+			{
+				if (tile->type == ptype)
+				{
+					return tile;
+				}
+			}
+			else
+			{
+				if (tile->type == ptype && tile->getnumber() == pnumber && tile->getcolour() == pcolour)
+				{
+					return tile;
+				}
+			}
+		}
+		Tile* notonboardtile = new Tile("notvalid", 0);
+		return notonboardtile;
+	}
+
+	static void Match(vector <Player*>& players, vector <Tile*>& stackqueue, vector <Tile*>& alltiles, vector <Tile*>& queue)
+	{
+		int roundpointer = 0;
+		for (const auto& player : players)
+		{
+			if (player->playerboard->tilesnoboard == maxtilesonboard)
+			{
+				roundpointer = player->playerno;
+			}
+		}
+		Player* currentPlayer = Player::get_Player(roundpointer, players);
+		string currenttype, currentcolour;
+		int currentnumber;
+		Tile* currentTile = new Tile("",0);
+		
+		while (true)
+		{
+			tie(currenttype, currentnumber, currentcolour) = currentPlayer->getPlayerInput();
+			Tile* currentTile = CheckTile(currenttype, currentnumber, currentcolour, currentPlayer->playerboard->board_tiles);
+			currentTile->displayInfo();
+			if (currentTile->no == 0 || currentTile->type == "notvalid")
+			{
+				cout << "Not a valid tile. Try again." << endl;
+			}
+			else
+			{
+				break;
+			}
+		}
+		cout << "oare>>>>>>>>>>>>>>>>>>>>>>>";
+		cout << "SLAYED     ";
+		currentTile->displayInfo();
 	}
 };
 

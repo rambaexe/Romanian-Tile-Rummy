@@ -1,5 +1,8 @@
 #include <iostream>
 #include <vector>
+#include <string>
+#include <tuple>
+#include <functional>
 
 #include "console_h.h"
 #include "classes.h"
@@ -25,7 +28,11 @@ int main()
 	// Player::DisplayPlayers(players);
 	cout << endl;
 	cout << "Stacks queue:" << endl;
-	Tile::DisplayTiles(stackqueue);
+	Tile::DisplayTiles(stackqueue); cout << endl;
+
+	vector <Tile*> queue;
+
+	Game::Match(players, stackqueue, alltiles, queue);
 
 	// MULTIPLE RUNS: 
 	//for (int i = 1; i <= 4; i++)
@@ -41,7 +48,7 @@ int main()
 	//	cout << "Stacks queue:" << endl;
 	//	Tile::DisplayTiles(stackqueue);
 
-	//	game.Reset_finish(alltiles, players);
+	//	game.Reset_Match(alltiles, players);
 	//}
 	
 	rummy_console.pause_console();
