@@ -6,6 +6,7 @@
 #include <algorithm> 
 #include <ctime>   
 #include <random>
+#include "console_h.h"
 using namespace std;
 
 const int stacksno = 15;
@@ -39,6 +40,26 @@ public:
 	}
 
 	static vector<Tile*> CreateTiles();
+
+	void ResetTile()
+	{
+		downpoints = 0;
+		finalpoints = 0;
+		atu = false;
+	}
+
+	static void DisplayAtu(vector <Tile*>& alltiles)
+	{
+		for (const auto& tile : alltiles)
+		{
+			if (tile->atu == true)
+			{
+				cout << "ATU: ";
+				tile->displayInfo();
+				cout << endl;
+			}
+		}
+	}
 
 	static void DisplayTiles(vector <Tile*>& tiles)
 	{
@@ -208,6 +229,12 @@ public:
 		}
 	}
 
+	/*void Reset_Board()
+	{
+		board_tiles.clear();
+		tilesnoboard = 0;
+	}*/
+
 	void displayBoardinfo()
 	{
 		cout << tilesnoboard << endl;
@@ -223,7 +250,8 @@ class Player
 public:
 	static int number_of_players;
 	Board* playerboard;
-	int points;
+	int match_points;
+	int total_points;
 	int playerno;
 
 	Player()
@@ -231,7 +259,8 @@ public:
 		playerboard = new Board();
 		number_of_players++;
 		playerno = number_of_players;
-		points = 0;
+		match_points = 0;
+		total_points = 0;
 	}
 
 	void displayPlayerinfo() const
@@ -240,6 +269,12 @@ public:
 		// cout << "Points: " << points << endl;
 		playerboard->displayBoardinfo();
 		cout << endl;
+	}
+
+	void ResetPlayer()
+	{
+		playerboard = new Board();
+		match_points = 0;
 	}
 
 	static void DisplayPlayers(vector <Player*>& players)
@@ -253,7 +288,6 @@ public:
 	static vector <Player*> InitialisePlayers()
 	{
 		int n;
-		vector <Player*> players;
 		while (true)
 		{
 			cout << "Enter number of players: ";
@@ -264,14 +298,35 @@ public:
 			}
 			cout << "Invalid input, please try again" << endl;
 		}
+		vector <Player*> players = InitialiseNPlayers(n);
+		return players;
+	}
+
+	static vector <Player*> InitialiseNPlayers(int n)
+	{
+		vector <Player*> players;
 		for (int i = 1; i <= n; i++)
 		{
 			players.push_back(new Player());
 		}
 		return players;
 	}
+};
 
-	static void DivideStacks(vector <vector<Tile*>>& stacks, vector <Tile*>& alltiles, vector <Player*>& players)
+int Player::number_of_players = 0;
+
+class Game
+{
+public:
+	int multiplier;
+
+	Game()
+	{
+		multiplier = 1;
+
+	}
+
+	static vector <Tile*> DivideStacks(vector <vector<Tile*>> stacks, vector <Tile*>& alltiles, vector <Player*>& players)
 	{
 		//stacks[stacks.size()-1][0] -> Atu
 
@@ -282,9 +337,6 @@ public:
 		if (stacks[stacks.size() - 1][0]->type == "normal")
 		{
 			pos = stacks[stacks.size() - 1][0]->getnumber();
-			//cout << pos << endl;
-			/*cout << "REPLACED: " << endl;
-			stacks[pos - 1][stacks[pos - 1].size() - 1]->displayInfo();*/
 		}
 
 		stacks[pos].push_back(stacks[pos - 1][stacks[pos - 1].size() - 1]);      // last tile moved to the next stack
@@ -306,31 +358,35 @@ public:
 		}
 		Player::DisplayPlayers(players);
 
-		cout << endl << "Stacks: " << endl;
-		Tile::DisplayStacks(stacks);
-		cout << pos << endl;
 		// Creating queue:
-		vector <vector<Tile*>> queue;
+		vector <Tile*> queue;
 
-		//while(stacks.size() != 0)
-		//{
-		//	if (stacks.size() == 0)
-		//	{
-		//		break;
-		//	}
-		//	if (pos == stacks.size())
-		//	{
-		//		pos = 0;
-		//	}
-		//	queue.push_back(stacks[pos]);
-		//	stacks.erase(stacks.begin() + pos);
-		//}
-		////Tile::DisplayStacks(stacks);
-		//Tile::DisplayStacks(queue);
+		while (stacks.size() != 0)
+		{
+			if (pos == stacks.size())
+			{
+				pos = 0;
+			}
+			for (int j = 0; j < stacks[pos].size(); j++)
+			{
+				queue.push_back(stacks[pos][j]);
+			}
+			stacks.erase(stacks.begin() + pos);
+		}
+		return queue;
+	}
+
+	static void Reset_finish(vector <Tile*>& alltiles, vector <Player*>& players)
+	{
+		for (const auto& tile : alltiles)
+		{
+			tile->ResetTile();
+		}
+		for (const auto& player : players)
+		{
+			player->ResetPlayer();
+		}
 	}
 };
-
-
-int Player::number_of_players = 0;
 
 #endif

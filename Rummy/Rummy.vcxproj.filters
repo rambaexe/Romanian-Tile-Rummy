@@ -23,7 +23,7 @@
     <ClInclude Include="classes.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="console.h">
+    <ClInclude Include="console_h.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
