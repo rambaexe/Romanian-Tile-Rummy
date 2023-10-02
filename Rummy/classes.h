@@ -307,6 +307,11 @@ public:
 		cout << endl;
 	}
 
+	void displayPlayername() const
+	{
+		cout << "PLAYER " << playerno << endl;
+	}
+
 	void ResetPlayer()
 	{
 		playerboard = new Board();
@@ -392,21 +397,40 @@ public:
 	{
 		// get Type:
 		string stringp;
-		cout << "Type: ";
+		cout << "Type [n - normal; j - joker]: ";
 		cin >> stringp;
 
-		if (stringp == "joker")
+		if (stringp == "j")
 		{
 			return make_tuple("joker", 0, "");
 		}
-		else if (stringp == "normal")
+		else if (stringp == "n")
 		{
 			int pnumber = getPlayerNumber();
 			string pcolour = getPlayerColour();
-			return make_tuple(stringp, pnumber, pcolour);
+
+			return make_tuple("normal", pnumber, pcolour);
 		}
 		return make_tuple("notvalid", 0, "notvalid");
 	}
+
+	static void removeTilefromBoard(string currenttype, int currentnumber, string currentcolour, Player*& player)
+	{
+		int i = 0;
+		for (int i = 0; i < player->playerboard->board_tiles.size(); i++)
+		{
+			if ((currenttype == "joker" && currenttype == player->playerboard->board_tiles[i]->type) ||
+				(player->playerboard->board_tiles[i]->getnumber() == currentnumber
+				&& player->playerboard->board_tiles[i]->getcolour() == currentcolour))
+			{
+				player->playerboard->board_tiles.erase(player->playerboard->board_tiles.begin() + i);
+				player->playerboard->tilesnoboard--;
+				break;
+			}
+		}
+		// cout << endl;  player->playerboard->displayBoardinfo();
+	}
+
 };
 
 int Player::number_of_players = 0;
@@ -513,6 +537,7 @@ public:
 
 	static void Match(vector <Player*>& players, vector <Tile*>& stackqueue, vector <Tile*>& alltiles, vector <Tile*>& queue)
 	{
+		// choose player to start (with 15 tiles):
 		int roundpointer = 0;
 		for (const auto& player : players)
 		{
@@ -521,11 +546,15 @@ public:
 				roundpointer = player->playerno;
 			}
 		}
+	
 		Player* currentPlayer = Player::get_Player(roundpointer, players);
 		string currenttype, currentcolour;
 		int currentnumber;
 		Tile* currentTile = new Tile("",0);
-		
+
+		// get player input for tile
+		currentPlayer->displayPlayerinfo();
+		cout << "Choose card to put in queue." << endl;
 		while (true)
 		{
 			tie(currenttype, currentnumber, currentcolour) = currentPlayer->getPlayerInput();
@@ -540,9 +569,15 @@ public:
 				break;
 			}
 		}
-		cout << "oare>>>>>>>>>>>>>>>>>>>>>>>";
-		cout << "SLAYED     ";
-		currentTile->displayInfo();
+		currentTile->displayInfo(); cout << endl;
+
+		Player::removeTilefromBoard(currenttype, currentnumber, currentcolour, currentPlayer);
+		currentPlayer->displayPlayerinfo();
+		queue.push_back(currentTile);
+		Tile::DisplayTiles(queue);
+		//TO DO:
+		// update player function
+		// add to queue
 	}
 };
 
