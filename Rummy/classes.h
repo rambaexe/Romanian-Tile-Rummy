@@ -93,6 +93,7 @@ public:
 		{
 			tile->displayInfo();
 		}
+		cout << endl;
 	}
 
 	static void DisplayStacks(vector <vector<Tile*>> stacks)
@@ -100,7 +101,7 @@ public:
 		for (auto& stack : stacks)
 		{
 			Tile::DisplayTiles(stack);
-			cout << endl;
+			//cout << endl;
 			//cout << "--------------------------------------------------" << endl;
 		}
 	}
@@ -191,7 +192,7 @@ public:
 
 		cout << number;
 		Console::setConsoleColour(white);
-		cout << " | ";
+		cout << " ";
 		//cout << endl;
 	}
 
@@ -219,7 +220,7 @@ public:
 	{
 		cout << type;
 		Tile::displayInfo();
-		cout << " | ";
+		cout << " ";
 		//cout << endl;
 	}
 };
@@ -393,7 +394,27 @@ public:
 		return pcolour;
 	}
 
-	tuple<string, int, string> getPlayerInput()			// type, number, colour
+	int getPlayerOption1()
+	{
+		int pnumber = 0;
+		string numberstring;
+		cout << "Choose from taking a tile from the stacks (1) or taking a tile from the queue (2): ";
+
+		cin >> numberstring;
+
+		try
+		{
+			pnumber = stoi(numberstring);
+		}
+		catch (exception& err)
+		{
+			cout << "Error occured. You must insert a number." << endl;
+		}
+
+		return pnumber;
+	}
+
+	tuple<string, int, string> getPlayerInputTile()			// type, number, colour
 	{
 		// get Type:
 		string stringp;
@@ -439,19 +460,23 @@ class Game
 {
 public:
 	int multiplier;
+	int roundpointer;
+	int matchpointer;
 
 	Game()
 	{
+		roundpointer = 0;
+		matchpointer = 0;
 		multiplier = 1;
 	}
 
-	static vector <Tile*> DivideStacks(vector <vector<Tile*>> stacks, vector <Tile*>& alltiles, vector <Player*>& players)
+	vector <Tile*> DivideStacks(vector <vector<Tile*>> stacks, vector <Tile*>& alltiles, vector <Player*>& players)
 	{
 		//stacks[stacks.size()-1][0] -> Atu
 
 		cout << "ATU: ";
 		stacks[stacks.size() - 1][0]->displayInfo(); cout << endl;
-		stacks[stacks.size() - 1][0]->move = false;					//do not allow atu to be moved
+		stacks[stacks.size() - 1][0]->move = false;							//do not allow atu to be moved
 
 		int pos = 1;
 		if (stacks[stacks.size() - 1][0]->type == "normal")
@@ -464,6 +489,17 @@ public:
 		stacks.pop_back();
 
 		Tile::DisplayStacks(stacks);
+
+		// divide stacks
+		if (matchpointer == Player::number_of_players)
+		{
+			matchpointer = 1;
+		}
+		else 
+		{
+			matchpointer++;
+		}
+		int auxmatchpointer = matchpointer-1;
 		for (int j = 0; j < 2; j++)
 		{
 			for (int i = 0; i < Player::number_of_players; i++)
@@ -473,8 +509,17 @@ public:
 					pos = 0;
 				}
 				Tile::SetMoveFalse(stacks[pos]);
-				players[i]->playerboard->addtoBoard(stacks[pos]);
+				players[auxmatchpointer]->playerboard->addtoBoard(stacks[pos]);
 				stacks.erase(stacks.begin() + pos);
+
+				if (auxmatchpointer == Player::number_of_players - 1)
+				{
+					auxmatchpointer = 0;
+				}
+				else
+				{
+					auxmatchpointer++;
+				}
 			}
 		}
 		Player::DisplayPlayers(players);
@@ -488,9 +533,20 @@ public:
 			{
 				pos = 0;
 			}
-			for (int j = 0; j < stacks[pos].size(); j++)
+			if (stacks.size() == 1)        // last stack with atu
 			{
-				queue.push_back(stacks[pos][j]);
+				for (int j = stacks[pos].size() - 2; j >= 0; j--)
+				{
+					queue.push_back(stacks[pos][j]);
+				}
+				queue.push_back(stacks[pos][stacks[pos].size() - 1]);
+			}
+			else
+			{
+				for (int j = stacks[pos].size() - 1; j >= 0; j--)
+				{
+					queue.push_back(stacks[pos][j]);
+				}
 			}
 			stacks.erase(stacks.begin() + pos);
 		}
@@ -535,32 +591,31 @@ public:
 		return notonboardtile;
 	}
 
-	static void Match(vector <Player*>& players, vector <Tile*>& stackqueue, vector <Tile*>& alltiles, vector <Tile*>& queue)
+	void Match(vector <Player*>& players, vector <Tile*>& stackqueue, vector <Tile*>& alltiles, vector <Tile*>& queue)
 	{
 		// choose player to start (with 15 tiles):
-		int roundpointer = 0;
 		for (const auto& player : players)
 		{
 			if (player->playerboard->tilesnoboard == maxtilesonboard)
 			{
-				roundpointer = player->playerno;
+				Game::roundpointer = player->playerno;
 			}
 		}
 	
 		Player* currentPlayer = Player::get_Player(roundpointer, players);
 		string currenttype, currentcolour;
 		int currentnumber;
-		Tile* currentTile = new Tile("",0);
+		Tile* currentTile = new Tile("", 0);
 
 		// get player input for tile
 		currentPlayer->displayPlayerinfo();
 		cout << "Choose card to put in queue." << endl;
 		while (true)
 		{
-			tie(currenttype, currentnumber, currentcolour) = currentPlayer->getPlayerInput();
-			Tile* currentTile = CheckTile(currenttype, currentnumber, currentcolour, currentPlayer->playerboard->board_tiles);
+			tie(currenttype, currentnumber, currentcolour) = currentPlayer->getPlayerInputTile();
+			currentTile = CheckTile(currenttype, currentnumber, currentcolour, currentPlayer->playerboard->board_tiles);
 			currentTile->displayInfo();
-			if (currentTile->no == 0 || currentTile->type == "notvalid")
+			if (currentTile->no == 0  && currentTile->type == "notvalid")
 			{
 				cout << "Not a valid tile. Try again." << endl;
 			}
@@ -573,11 +628,68 @@ public:
 
 		Player::removeTilefromBoard(currenttype, currentnumber, currentcolour, currentPlayer);
 		currentPlayer->displayPlayerinfo();
+		
 		queue.push_back(currentTile);
-		Tile::DisplayTiles(queue);
-		//TO DO:
-		// update player function
-		// add to queue
+		cout << "Queue: ";  Tile::DisplayTiles(queue);
+		queue[0]->move = false;			// cannot pick the first card
+		
+		int ct = 1;
+		for (int i = 0; i <= 9; i++)
+		{
+			players[roundpointer]->displayPlayerinfo();
+
+			if (roundpointer == Player::number_of_players - 1)
+			{
+				roundpointer = 0;
+			}
+			else
+			{
+				roundpointer++;
+			}
+			ct++;
+			
+			players[roundpointer]->displayPlayerinfo();
+			Player* currentPlayer = Player::get_Player(roundpointer, players);
+			
+
+			//if (ct == 2) // second player not allowed to break
+			//{
+
+			//}
+			//else
+			//{
+
+			//}
+
+			Tile* currentTile = new Tile("", 0);
+
+			// get player input for tile
+			players[roundpointer]->displayPlayerinfo();
+			cout << "Choose card to put in queue." << endl;
+			while (true)
+			{
+				tie(currenttype, currentnumber, currentcolour) = players[roundpointer]->getPlayerInputTile();
+				currentTile = CheckTile(currenttype, currentnumber, currentcolour, players[roundpointer]->playerboard->board_tiles);
+				currentTile->displayInfo();
+				if (currentTile->no == 0 && currentTile->type == "notvalid")
+				{
+					cout << "Not a valid tile. Try again." << endl;
+				}
+				else
+				{
+					break;
+				}
+			}
+			currentTile->displayInfo(); cout << endl;
+
+			Player::removeTilefromBoard(currenttype, currentnumber, currentcolour, players[roundpointer]);
+			// currentPlayer->displayPlayerinfo();
+			players[roundpointer]->displayPlayerinfo();
+
+			queue.push_back(currentTile);
+			cout << "Queue: ";  Tile::DisplayTiles(queue);
+			queue[0]->move = false;			// cannot pick the first card
+		}
 	}
 };
 

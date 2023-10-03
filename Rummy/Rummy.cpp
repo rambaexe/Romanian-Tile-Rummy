@@ -14,39 +14,59 @@ int main()
 {
 	Console rummy_console;
 	Game game;
-	//vector <Player*> players = Player::InitialisePlayers();
-	vector <Player*> players = Player::InitialiseNPlayers(4);
 	vector <Tile*> alltiles = Tile::CreateTiles();
-
-
+	//vector <Player*> players = Player::InitialisePlayers();
+	vector <Player*> players = Player::InitialiseNPlayers(3);
+	
+	
+	// ONE RUN: 
 	vector <vector <Tile*>> stacks = Tile::CreateStacks(alltiles);
 	//Tile::DisplayTiles(alltiles);
 	Tile::DisplayStacks(stacks);
-
-	vector <Tile*> stackqueue = Game::DivideStacks(stacks, alltiles, players);
+	vector <Tile*> stackqueue = game.DivideStacks(stacks, alltiles, players);
+	vector <Tile*> queue;
 
 	// Player::DisplayPlayers(players);
 	cout << endl;
 	cout << "Stacks queue:" << endl;
 	Tile::DisplayTiles(stackqueue); cout << endl;
+	
+	game.Match(players, stackqueue, alltiles, queue);
+	game.Reset_Match(alltiles, players);
 
-	vector <Tile*> queue;
-
-	Game::Match(players, stackqueue, alltiles, queue);
-
+	
+	
 	// MULTIPLE RUNS: 
-	//for (int i = 1; i <= 4; i++)
+	//for (int i = 1; i <= 6; i++)
 	//{
 	//	vector <vector <Tile*>> stacks = Tile::CreateStacks(alltiles);
 	//	//Tile::DisplayTiles(alltiles);
 	//	Tile::DisplayStacks(stacks);
-
-	//	vector <Tile*> stackqueue = Game::DivideStacks(stacks, alltiles, players);
+	//	vector <Tile*> stackqueue = game.DivideStacks(stacks, alltiles, players);
 
 	//	// Player::DisplayPlayers(players);
 	//	cout << endl;
 	//	cout << "Stacks queue:" << endl;
-	//	Tile::DisplayTiles(stackqueue);
+	//	Tile::DisplayTiles(stackqueue); cout << endl;
+
+	//	game.Reset_Match(alltiles, players);
+	//}
+
+	//for (int i = 1; i <= 6; i++)
+	//{
+	//	vector <vector <Tile*>> stacks = Tile::CreateStacks(alltiles);
+	//	//Tile::DisplayTiles(alltiles);
+	//	Tile::DisplayStacks(stacks);
+	//	vector <Tile*> stackqueue = game.DivideStacks(stacks, alltiles, players);
+
+	//	// Player::DisplayPlayers(players);
+	//	cout << endl;
+	//	cout << "Stacks queue:" << endl;
+	//	Tile::DisplayTiles(stackqueue); cout << endl;
+
+	//	vector <Tile*> queue;
+
+	//	game.Match(players, stackqueue, alltiles, queue);
 
 	//	game.Reset_Match(alltiles, players);
 	//}
