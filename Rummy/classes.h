@@ -449,7 +449,6 @@ public:
 				break;
 			}
 		}
-		// cout << endl;  player->playerboard->displayBoardinfo();
 	}
 
 };
@@ -598,70 +597,37 @@ public:
 		{
 			if (player->playerboard->tilesnoboard == maxtilesonboard)
 			{
-				Game::roundpointer = player->playerno;
+				Game::roundpointer = player->playerno - 1;
 			}
 		}
-	
-		Player* currentPlayer = Player::get_Player(roundpointer, players);
 		string currenttype, currentcolour;
 		int currentnumber;
 		Tile* currentTile = new Tile("", 0);
-
-		// get player input for tile
-		currentPlayer->displayPlayerinfo();
-		cout << "Choose card to put in queue." << endl;
-		while (true)
-		{
-			tie(currenttype, currentnumber, currentcolour) = currentPlayer->getPlayerInputTile();
-			currentTile = CheckTile(currenttype, currentnumber, currentcolour, currentPlayer->playerboard->board_tiles);
-			currentTile->displayInfo();
-			if (currentTile->no == 0  && currentTile->type == "notvalid")
-			{
-				cout << "Not a valid tile. Try again." << endl;
-			}
-			else
-			{
-				break;
-			}
-		}
-		currentTile->displayInfo(); cout << endl;
-
-		Player::removeTilefromBoard(currenttype, currentnumber, currentcolour, currentPlayer);
-		currentPlayer->displayPlayerinfo();
-		
-		queue.push_back(currentTile);
-		cout << "Queue: ";  Tile::DisplayTiles(queue);
-		queue[0]->move = false;			// cannot pick the first card
-		
+			
 		int ct = 1;
 		for (int i = 0; i <= 9; i++)
 		{
-			players[roundpointer]->displayPlayerinfo();
+			cout << " -------------------------------------------------------------- " << endl;
+			Tile* currentTile = new Tile("", 0);
 
-			if (roundpointer == Player::number_of_players - 1)
+			if (ct == 1)
 			{
-				roundpointer = 0;
+				// no extra tile
+			}
+			else if (ct <= players[roundpointer]->number_of_players)
+			{
+				// get tile from stack and add to player
+				players[roundpointer]->playerboard->board_tiles.push_back(stackqueue[0]);
+				players[roundpointer]->playerboard->tilesnoboard++;
+				stackqueue.erase(stackqueue.begin());
 			}
 			else
 			{
-				roundpointer++;
+				//choice: break / get tile from stacks
+				players[roundpointer]->playerboard->board_tiles.push_back(stackqueue[0]);
+				players[roundpointer]->playerboard->tilesnoboard++;
+				stackqueue.erase(stackqueue.begin());
 			}
-			ct++;
-			
-			players[roundpointer]->displayPlayerinfo();
-			Player* currentPlayer = Player::get_Player(roundpointer, players);
-			
-
-			//if (ct == 2) // second player not allowed to break
-			//{
-
-			//}
-			//else
-			//{
-
-			//}
-
-			Tile* currentTile = new Tile("", 0);
 
 			// get player input for tile
 			players[roundpointer]->displayPlayerinfo();
@@ -670,7 +636,6 @@ public:
 			{
 				tie(currenttype, currentnumber, currentcolour) = players[roundpointer]->getPlayerInputTile();
 				currentTile = CheckTile(currenttype, currentnumber, currentcolour, players[roundpointer]->playerboard->board_tiles);
-				currentTile->displayInfo();
 				if (currentTile->no == 0 && currentTile->type == "notvalid")
 				{
 					cout << "Not a valid tile. Try again." << endl;
@@ -680,15 +645,25 @@ public:
 					break;
 				}
 			}
-			currentTile->displayInfo(); cout << endl;
+			cout << "Chosen tile: ";  currentTile->displayInfo(); cout << endl;
 
+			// remove tile from player and put in queue
 			Player::removeTilefromBoard(currenttype, currentnumber, currentcolour, players[roundpointer]);
-			// currentPlayer->displayPlayerinfo();
-			players[roundpointer]->displayPlayerinfo();
-
 			queue.push_back(currentTile);
+			Player::DisplayPlayers(players);
 			cout << "Queue: ";  Tile::DisplayTiles(queue);
 			queue[0]->move = false;			// cannot pick the first card
+
+			// next player:
+			if (roundpointer == Player::number_of_players - 1)
+			{
+				roundpointer = 0;
+			}
+			else
+			{
+				roundpointer++;
+			}
+			ct++;
 		}
 	}
 };
