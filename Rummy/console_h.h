@@ -38,8 +38,5 @@ public:
     }
 };
 
-
-
-
 #endif
 #pragma once

@@ -6,6 +6,7 @@
 #include <algorithm> 
 #include <ctime>   
 #include <random>
+#include <map>
 #include "console_h.h"
 using namespace std;
 
@@ -22,7 +23,7 @@ public:
 	string type;
 	int downpoints;
 	int finalpoints;
-	int no;
+	int no;				
 	bool atu;
 	bool move;
 
@@ -143,6 +144,16 @@ public:
 	{
 		return "";
 	}
+
+	void virtual addJokerreplacingTile(Tile* tiletoadd){}
+
+	vector<string> virtual getcolourvector() 
+	{ 
+		vector<string> empty;
+		return empty; 
+	}
+
+	void virtual deleteJokerreplacing() {}
 };
 
 class NormalTile : public Tile
@@ -210,6 +221,7 @@ public:
 class JokerTile : public Tile
 {
 public:
+	vector<Tile*> replacingtiles;
 
 	JokerTile(int no) : Tile("joker", no)
 	{
@@ -220,9 +232,77 @@ public:
 	{
 		cout << type;
 		Tile::displayInfo();
+		if (replacingtiles.size() != 0)
+		{
+			cout << "=";
+			for (const auto& tile : replacingtiles)
+			{
+				tile->displayInfo();
+			}
+		}
 		cout << " ";
 		//cout << endl;
 	}
+
+	int getnumber() override
+	{
+		if (replacingtiles.size() == 0)
+		{
+			return 0;
+		}
+		else
+		{
+			return replacingtiles[0]->getnumber();
+		}
+	}
+
+	string getcolour() override
+	{
+		if (replacingtiles.size() == 0)
+		{
+			return "";
+		}
+		else if (replacingtiles.size() == 1)
+		{
+			return replacingtiles[0]->getcolour();
+		}
+		return replacingtiles[0]->getcolour();
+	}
+
+	void addJokerreplacingTile(Tile* tiletoadd) override
+	{
+		bool ok = true;
+		for (const auto& tile : replacingtiles)
+		{
+			if (tile->type == tiletoadd->type && tile->getcolour() == tiletoadd->getcolour() && tile->getnumber() == tiletoadd->getnumber())
+			{
+				ok = false;
+			}
+		}
+		if (ok)
+		{
+			replacingtiles.push_back(tiletoadd);
+		}
+	}
+
+	void deleteJokerreplacing() override
+	{
+		replacingtiles.clear();
+	}
+
+	vector<string> getcolourvector() override
+	{
+		vector<string> col;
+		if (replacingtiles.size() > 0)
+		{
+			for (const auto& tile : replacingtiles)
+			{
+				col.push_back(tile->getcolour());
+			}
+		}
+		return col;
+	}
+	
 };
 
 
@@ -281,6 +361,596 @@ public:
 		}
 	}
 };
+
+class Formation
+{
+public:
+	bool melded;
+	bool valid;
+	bool jokerinformation;
+	string type;
+	vector <Tile*> formationtiles;				// actual formation tiles 
+	int points;
+	static int formationno;
+	int formationid;
+
+	Formation(vector<Tile*> tilesforformation, string formationtype)
+	{
+		formationno++; formationid = formationno;
+		melded = false;
+		jokerinformation = false;
+		valid = true;								// assume formation is valid
+
+		//adding tiles to formation
+		for (const auto& tile : tilesforformation)
+		{
+			formationtiles.push_back(tile);
+			// check joker tile
+			if (tile->type == "joker")
+			{
+				jokerinformation = true;
+			}
+		}
+
+		// check one joker only
+		if (jokerinformation)
+		{
+			int ct = 0;
+			for (const auto& tile : tilesforformation)
+			{
+				if (tile->type == "joker")
+				{
+					ct++;
+				}
+			}
+			if (ct != 1)
+			{
+				valid = false;
+			}
+		}
+
+		// determine formation type
+		type = formationtype;
+		
+		// handle joker
+		handlejokerinformation(tilesforformation);
+
+		// check if formation is valid 
+		if (valid)
+		{
+			valid = checkFormationvalid(formationtiles);
+		}
+	}
+
+	Formation(vector<Tile*> tilesforformation)
+	{
+		formationno++; formationid = formationno;
+		melded = false;
+		jokerinformation = false;
+		valid = true;								// assume formation is valid
+
+		//adding tiles to formation
+		for (const auto& tile : tilesforformation)
+		{
+			formationtiles.push_back(tile);
+			// check joker tile
+			if (tile->type == "joker")
+			{
+				jokerinformation = true;
+			}
+		}
+
+		// check one joker only
+		if (jokerinformation)
+		{
+			int ct = 0;
+			for (const auto& tile : tilesforformation)
+			{
+				if (tile->type == "joker")
+				{
+					ct++;
+				}
+			}
+			if (ct != 1)
+			{
+				valid = false;
+			}
+		}
+
+		// determine formation type
+		if (valid)
+		{
+			vector<Tile*> tilescopy (tilesforformation);
+			bool isrun = checkRun(tilescopy);
+			for (const auto& tile : tilesforformation)
+			{
+				if (tile->type == "joker")
+				{
+					tile->deleteJokerreplacing();
+				}
+			}
+			bool isset = checkSet(tilescopy);
+			for (const auto& tile : tilesforformation)
+			{
+				if (tile->type == "joker")
+				{
+					tile->deleteJokerreplacing();
+				}
+			}
+			if (isrun && !isset)
+			{
+				type = "run";
+			}
+			else if (isset && !isrun)
+			{
+				type = "set";
+			}
+			else
+			{
+				type = "";
+				valid = false;
+			}
+		}
+		for (const auto& tile : tilesforformation)
+		{
+			if (tile->type == "joker")
+			{
+				tile->deleteJokerreplacing();
+			}
+		}
+		// type = formationtype;
+
+		// handle joker
+		handlejokerinformation(tilesforformation);
+
+		// check if formation is valid 
+		if (valid)
+		{
+			valid = checkFormationvalid(formationtiles);
+		}
+	}
+
+	bool checkRun(vector<Tile*>& tilestocheck)
+	{
+		if (jokerinformation)
+		{
+			handlejokerinrun(tilestocheck);
+		}
+
+		//	check tiles to be between 1 and 13
+		for (const auto& tile : tilestocheck)
+		{
+			if (tile->getnumber() < 1 || tile->getnumber() > 13)
+			{
+				return false;
+			}
+		}
+
+		// check colour to be the same
+		string auxcolour = tilestocheck[0]->getcolour();
+		for (const auto& tile : tilestocheck)
+		{
+			if (tile->getcolour() != auxcolour)
+			{
+				return false;
+			}
+		}
+
+		//first tile not allowed to be 13 => check one not in the middle
+		if (tilestocheck[0]->getnumber() == 13)
+		{
+			return false;
+		}
+
+		//no replaced tile allowed to be 0
+		for (int i = 0; i < tilestocheck.size(); i++)
+		{
+			if (tilestocheck[i]->getnumber() == 0)
+			{
+				return false;
+			}
+		}
+
+		//check consecutive
+		for (int i = 1; i < tilestocheck.size(); i++)
+		{
+			if (tilestocheck[i]->getnumber() - 1 != tilestocheck[i - 1]->getnumber())
+			{
+				// check for ... - 13 - 1
+				if (i == tilestocheck.size() - 1 && tilestocheck[i]->getnumber() == 1 && tilestocheck[i - 1]->getnumber() == 13)
+				{
+					continue;
+				}
+				return false;
+			}
+
+		}
+		return true;
+	}
+
+	bool checkSet(vector<Tile*>& tilestocheck)
+	{
+		if (jokerinformation)
+		{
+			handlejokerinset(tilestocheck);
+		}
+		// min 3 max 4
+		if (tilestocheck.size() < 3 || tilestocheck.size() > 4)
+		{
+			return false;
+		}
+
+		// same number
+		int firstno = tilestocheck[0]->getnumber();
+		for (const auto& tile : tilestocheck)
+		{
+			if (tile->getnumber() != firstno)
+			{
+				return false;
+			}
+		}
+
+		// check colours
+		map<string, bool> colours = { {"black", false}, {"yellow", false}, {"red", false}, {"blue", false} };
+		for (const auto& tile : tilestocheck)
+		{
+			if (tile->type == "joker")
+			{
+				vector<string> coljok = tile->getcolourvector();
+				for (const auto& colj : coljok)
+				{
+					for (auto& col : colours)
+					{
+						if (col.first == colj)
+						{
+							if (col.second == false)
+							{
+								col.second = true;
+							}
+							else
+							{
+								return false;
+							}
+						}
+					}
+				}
+			}
+			else
+			{
+				string currentcol = tile->getcolour();
+				for (auto& col : colours)
+				{
+					if (col.first == currentcol)
+					{
+						if (col.second == false)
+						{
+							col.second = true;
+						}
+						else
+						{
+							return false;
+						}
+					}
+				}
+			}
+		}
+		return true;
+	}
+
+	void handlejokerinset(vector<Tile*>& tilesforset)
+	{
+		vector<string> colours;
+		colours.push_back("black");
+		colours.push_back("red");
+		colours.push_back("yellow");
+		colours.push_back("blue");
+
+		int currentnumber = 0;
+
+		for (const auto& tile : tilesforset)
+		{
+			if (tile->type != "joker")
+			{
+				if (currentnumber == 0)
+				{
+					currentnumber = tile->getnumber();
+				}
+				string currentcolour = tile->getcolour();
+				for (int i = 0; i < colours.size(); i++)
+				{
+					if (currentcolour == colours[i])
+					{
+						colours.erase(colours.begin() + i);
+						break;
+					}
+				}
+			}
+		}
+		for (const auto& tile : tilesforset)
+		{
+			if (tile->type == "joker")
+			{
+				for (const auto& colour : colours)
+				{
+					tile->addJokerreplacingTile(new NormalTile(colour, currentnumber, 0));
+				}
+			}
+		}
+	}
+
+	void handlejokerinrun(vector<Tile*>& tilesforrun)
+	{
+		int jokerpos = 0;
+		for (int i = 0; i < tilesforrun.size(); i++)
+		{
+			if (tilesforrun[i]->type == "joker")
+			{
+				jokerpos = i;
+				break;
+			}
+		}
+		if (jokerpos == 0) // beginning
+		{
+			string col = tilesforrun[1]->getcolour();
+			int num = tilesforrun[1]->getnumber();
+			tilesforrun[jokerpos]->addJokerreplacingTile(new NormalTile(col, num - 1, 0));
+		}
+		else if (jokerpos == tilesforrun.size() - 1) // end
+		{
+			string col = tilesforrun[tilesforrun.size() - 2]->getcolour();
+			int num = tilesforrun[tilesforrun.size() - 2]->getnumber();
+			if (tilesforrun[tilesforrun.size() - 2]->getnumber() == 13)
+			{
+				tilesforrun[jokerpos]->addJokerreplacingTile(new NormalTile(col, 1, 0));
+			}
+			else
+			{
+				tilesforrun[jokerpos]->addJokerreplacingTile(new NormalTile(col, num + 1, 0));
+			}
+		}
+		else // middle
+		{
+			string col = tilesforrun[jokerpos - 1]->getcolour();
+			int num = tilesforrun[jokerpos - 1]->getnumber();
+			tilesforrun[jokerpos]->addJokerreplacingTile(new NormalTile(col, num + 1, 0));
+		}
+	}
+
+	void handlejokerinformation(vector<Tile*>& tilesforformation)
+	{
+		// handle joker
+		if (jokerinformation && valid)
+		{
+			if (type == "run")
+			{
+				// 12 - j - 1
+				// j - 13 - 1
+				// 12 - 13 - j
+				// j - 2 - 3
+				// 1 - 2 - j
+				// 1 - j - 3
+				int jokerpos = 0;
+				for (int i = 0; i < tilesforformation.size(); i++)
+				{
+					if (tilesforformation[i]->type == "joker")
+					{
+						jokerpos = i;
+						break;
+					}
+				}
+				if (jokerpos == 0) // beginning
+				{
+					string col = tilesforformation[1]->getcolour();
+					int num = tilesforformation[1]->getnumber();
+					tilesforformation[jokerpos]->addJokerreplacingTile(new NormalTile(col, num - 1, 0));
+				}
+				else if (jokerpos == tilesforformation.size() - 1) // end
+				{
+					string col = tilesforformation[tilesforformation.size() - 2]->getcolour();
+					int num = tilesforformation[tilesforformation.size() - 2]->getnumber();
+					if (tilesforformation[tilesforformation.size() - 2]->getnumber() == 13)
+					{
+						tilesforformation[jokerpos]->addJokerreplacingTile(new NormalTile(col, 1, 0));
+					}
+					else
+					{
+						tilesforformation[jokerpos]->addJokerreplacingTile(new NormalTile(col, num + 1, 0));
+					}
+				}
+				else // middle
+				{
+					string col = tilesforformation[jokerpos - 1]->getcolour();
+					int num = tilesforformation[jokerpos - 1]->getnumber();
+					tilesforformation[jokerpos]->addJokerreplacingTile(new NormalTile(col, num + 1, 0));
+				}
+			}
+			else if (type == "set")
+			{
+				vector<string> colours;
+				colours.push_back("black");
+				colours.push_back("red");
+				colours.push_back("yellow");
+				colours.push_back("blue");
+
+				int currentnumber = 0;
+
+				for (const auto& tile : tilesforformation)
+				{
+					if (tile->type != "joker")
+					{
+						if (currentnumber == 0)
+						{
+							currentnumber = tile->getnumber();
+						}
+						string currentcolour = tile->getcolour();
+						for (int i = 0; i < colours.size(); i++)
+						{
+							if (currentcolour == colours[i])
+							{
+								colours.erase(colours.begin() + i);
+								break;
+							}
+						}
+					}
+				}
+				for (const auto& tile : tilesforformation)
+				{
+					if (tile->type == "joker")
+					{
+						for (const auto& colour : colours)
+						{
+							tile->addJokerreplacingTile(new NormalTile(colour, currentnumber, 0));
+						}
+					}
+				}
+			}
+
+		}
+	}
+
+	void displayFormationinfo()
+	{
+		for (const auto& tile : formationtiles)
+		{
+			tile->displayInfo();
+		}
+		cout << endl;
+		cout << "Type: "<< type << "\nValid: " << valid << "\nId: " << formationid << "\nMelded: " << melded << "\n";
+	}
+	
+	// check if formation is valid
+	bool checkFormationvalid(vector <Tile*> tilesfor)
+	{
+		handlejokerinformation(tilesfor);
+
+		if (tilesfor.size() < 3 && tilesfor.size() > 13)
+		{
+			return false;
+		}
+		
+		// check run formations
+		if (type == "run")
+		{
+			//	check tiles to be between 1 and 13
+			for (const auto& tile : tilesfor)
+			{
+				if (tile->getnumber() < 1 || tile->getnumber() > 13)
+				{
+					return false;
+				}
+			}
+
+			// check colour to be the same
+			string auxcolour = tilesfor[0]->getcolour();
+			for (const auto& tile : tilesfor)
+			{
+				if (tile->getcolour() != auxcolour)
+				{
+					return false;
+				}
+			}
+
+			//first tile not allowed to be 13 => check one not in the middle
+			if (tilesfor[0]->getnumber() == 13)
+			{
+				return false; 
+			}
+
+			//no replaced tile allowed to be 0
+			for (int i = 0; i < tilesfor.size(); i++)
+			{
+				if (tilesfor[i]->getnumber() == 0)
+				{
+					return false;
+				}
+			}
+
+			//check consecutive
+			for (int i = 1; i< tilesfor.size(); i++)
+			{
+				if (tilesfor[i]->getnumber() - 1 != tilesfor[i - 1]->getnumber())
+				{
+					// check for ... - 13 - 1
+					if (i == tilesfor.size() - 1 && tilesfor[i]->getnumber() == 1 && tilesfor[i - 1]->getnumber() == 13)
+					{
+						continue;
+					}
+					return false;
+				}
+
+			}
+			return true;
+		}
+		else if (type == "set")
+		{
+			// min 3 max 4
+			if (tilesfor.size() < 3 || tilesfor.size() > 4)
+			{
+				return false;
+			}
+
+			// same number
+			int firstno = tilesfor[0]->getnumber();
+			for (const auto& tile : tilesfor)
+			{
+				if (tile->getnumber() != firstno)
+				{
+					return false;
+				}
+			}
+
+			// check colours
+			map<string, bool> colours = { {"black", false}, {"yellow", false}, {"red", false}, {"blue", false} };
+			for (const auto& tile : tilesfor)
+			{
+				if (tile->type == "joker")
+				{
+					vector<string> coljok = tile->getcolourvector();
+					for (const auto& colj : coljok)
+					{
+						for (auto& col : colours)
+						{
+							if (col.first == colj)
+							{
+								if (col.second == false)
+								{
+									col.second = true;
+								}
+								else
+								{
+									return false;
+								}
+							}
+						}
+					}
+				}
+				else
+				{
+					string currentcol = tile->getcolour();
+					for (auto& col : colours)
+					{
+						if (col.first == currentcol)
+						{
+							if (col.second == false)
+							{
+								col.second = true;
+							}
+							else
+							{
+								return false;
+							}
+						}
+					}
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+
+};
+
+int Formation::formationno = 0;
 
 class Player
 {

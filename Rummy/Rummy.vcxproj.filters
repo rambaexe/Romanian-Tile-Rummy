@@ -26,5 +26,8 @@
     <ClInclude Include="console_h.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="test.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -3,20 +3,29 @@
 #include <string>
 #include <tuple>
 #include <functional>
+#include <map>
 
 #include "console_h.h"
 #include "classes.h"
+#include "test.h"
 
 
 using namespace std;
 
 int main()
 {
+	
 	Console rummy_console;
+
+	// FOR TESTING:
+	testformations();
+	rummy_console.pause_console();
+
+
 	Game game;
 	vector <Tile*> alltiles = Tile::CreateTiles();
 	//vector <Player*> players = Player::InitialisePlayers();
-	vector <Player*> players = Player::InitialiseNPlayers(3);
+	vector <Player*> players = Player::InitialiseNPlayers(4);
 	
 	
 	// ONE RUN: 
@@ -71,7 +80,7 @@ int main()
 	//	game.Reset_Match(alltiles, players);
 	//}
 	
-	rummy_console.pause_console();
+	// rummy_console.pause_console();
 	return 0;
 }
 
