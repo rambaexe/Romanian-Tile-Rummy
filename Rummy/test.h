@@ -466,6 +466,126 @@ void testformations()
 	tiles.push_back(new JokerTile(1));
 	form.push_back(new Formation(tiles));
 
+	tiles.clear();
+	tiles.push_back(new NormalTile("blue", 8, 0));
+	tiles.push_back(new NormalTile("blue", 9, 0));
+	tiles.push_back(new NormalTile("blue", 10, 0));
+	form.push_back(new Formation(tiles));
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("blue", 1, 0));
+	tiles.push_back(new NormalTile("blue", 2, 0));
+	tiles.push_back(new NormalTile("blue", 3, 0));
+	form.push_back(new Formation(tiles));
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("blue", 12, 0));
+	tiles.push_back(new NormalTile("blue", 13, 0));
+	tiles.push_back(new NormalTile("blue", 1, 0));
+	form.push_back(new Formation(tiles));
+
+
+	for (const auto& f : form)
+	{
+		f->displayFormationinfo();
+		cout << endl;
+	}
+	
+	form.clear();
+
+	cout << "-------------------------------------- SET ------------------------------" << endl;
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 2, 0));
+	tiles.push_back(new NormalTile("yellow", 2, 0));
+	tiles.push_back(new NormalTile("blue", 2, 0));
+	form.push_back(new Formation(tiles));
+	//vector<Tile*> e;
+	//e.push_back(new NormalTile("black", 2, 0));
+	//form[0]->addtoFormation(e);
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 1, 0));
+	tiles.push_back(new NormalTile("yellow", 1, 0));
+	tiles.push_back(new NormalTile("blue", 1, 0));
+	form.push_back(new Formation(tiles));
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 1, 0));
+	tiles.push_back(new NormalTile("yellow", 1, 0));
+	tiles.push_back(new NormalTile("blue", 1, 0));
+	tiles.push_back(new JokerTile(1));
+	form.push_back(new Formation(tiles));
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 12, 0));
+	tiles.push_back(new NormalTile("yellow", 12, 0));
+	tiles.push_back(new NormalTile("blue", 12, 0));
+	form.push_back(new Formation(tiles));
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 2, 0));
+	tiles.push_back(new NormalTile("black", 2, 0));
+	tiles.push_back(new NormalTile("blue", 2, 0));
+	form.push_back(new Formation(tiles));
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 2, 0));
+	tiles.push_back(new NormalTile("black", 2, 0));
+	tiles.push_back(new NormalTile("blue", 2, 0));
+	tiles.push_back(new NormalTile("yellow", 2, 0));
+	form.push_back(new Formation(tiles));
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 2, 0));
+	tiles.push_back(new NormalTile("black", 2, 0));
+	tiles.push_back(new NormalTile("blue", 2, 0));
+	tiles.push_back(new JokerTile(1));
+	form.push_back(new Formation(tiles));
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 2, 0));
+	tiles.push_back(new NormalTile("black", 2, 0));
+	tiles.push_back(new JokerTile(1));
+	form.push_back(new Formation(tiles));
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 2, 0));
+	tiles.push_back(new NormalTile("black", 2, 0));
+	tiles.push_back(new NormalTile("blue", 2, 0));
+	tiles.push_back(new NormalTile("yellow", 2, 0));
+	form.push_back(new Formation(tiles));
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 2, 0));
+	tiles.push_back(new NormalTile("red", 2, 0));
+	tiles.push_back(new NormalTile("black", 2, 0));
+	tiles.push_back(new NormalTile("yellow", 2, 0));
+	form.push_back(new Formation(tiles));
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 2, 0));
+	tiles.push_back(new NormalTile("blue", 2, 0));
+	tiles.push_back(new NormalTile("blue", 2, 0));
+	tiles.push_back(new NormalTile("black", 2, 0));
+	tiles.push_back(new NormalTile("yellow", 2, 0));
+	form.push_back(new Formation(tiles));
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 2, 0));
+	tiles.push_back(new NormalTile("red", 2, 0));
+	tiles.push_back(new JokerTile(1));
+	tiles.push_back(new NormalTile("yellow", 2, 0));
+	form.push_back(new Formation(tiles));
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 2, 0));
+	tiles.push_back(new NormalTile("black", 2, 0));
+	tiles.push_back(new NormalTile("blue", 2, 0));
+	tiles.push_back(new NormalTile("yellow", 2, 0));
+	tiles.push_back(new JokerTile(1));
+	form.push_back(new Formation(tiles));
+
 	for (const auto& f : form)
 	{
 		f->displayFormationinfo();
@@ -473,7 +593,219 @@ void testformations()
 	}
 	form.clear();
 
+	cout << "----------------------- First Meld ------------------------------\n";
 
+	tiles.clear();
+	tiles.push_back(new NormalTile("black", 9, 0));
+	tiles.push_back(new NormalTile("red", 9, 0));
+	tiles.push_back(new NormalTile("yellow", 9, 0));
+	form.push_back(new Formation(tiles));
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 7, 0));
+	tiles.push_back(new NormalTile("red", 8, 0));
+	tiles.push_back(new NormalTile("red", 9, 0));
+	form.push_back(new Formation(tiles));
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("yellow", 2, 0));
+	tiles.push_back(new NormalTile("yellow", 3, 0));
+	tiles.push_back(new NormalTile("yellow", 4, 0));
+	form.push_back(new Formation(tiles));
+
+	for (const auto& f : form)
+	{
+		f->displayFormationinfo();
+		cout << endl;
+	}
+
+	if (Game::checkfirstmeld(form))
+	{
+		cout << "valid first meld\n";
+	}
+	else
+	{
+		cout << "not a valid first meld\n";
+	}
+	cout << endl << " --------------------------------" << endl;
+	form.clear();
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 7, 0));
+	tiles.push_back(new NormalTile("red", 8, 0));
+	tiles.push_back(new NormalTile("red", 9, 0));
+	form.push_back(new Formation(tiles));
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 12, 0));
+	tiles.push_back(new NormalTile("black", 12, 0));
+	tiles.push_back(new NormalTile("blue", 12, 0));
+	form.push_back(new Formation(tiles));
+
+	for (const auto& f : form)
+	{
+		f->displayFormationinfo();
+		cout << endl;
+	}
+
+	if (Game::checkfirstmeld(form))
+	{
+		cout << "valid first meld\n";
+	}
+	else
+	{
+		cout << "not a valid first meld\n";
+	}
+	cout << endl << " --------------------------------" << endl;
+	form.clear();
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("yellow", 9, 0));
+	tiles.push_back(new NormalTile("yellow", 10, 0));
+	tiles.push_back(new JokerTile(1));
+	tiles.push_back(new NormalTile("yellow", 12, 0));
+	form.push_back(new Formation(tiles));
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 9, 0));
+	tiles.push_back(new NormalTile("black", 9, 0));
+	tiles.push_back(new NormalTile("blue", 9, 0));
+	form.push_back(new Formation(tiles));
+
+	for (const auto& f : form)
+	{
+		f->displayFormationinfo();
+		cout << endl;
+	}
+
+	if (Game::checkfirstmeld(form))
+	{
+		cout << "valid first meld\n";
+	}
+	else
+	{
+		cout << "not a valid first meld\n";
+	}
+	cout << endl << " --------------------------------" << endl;
+	form.clear();
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("yellow", 2, 0));
+	tiles.push_back(new NormalTile("yellow", 3, 0));
+	tiles.push_back(new NormalTile("yellow", 4, 0));
+	form.push_back(new Formation(tiles));
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 9, 0));
+	tiles.push_back(new NormalTile("black", 9, 0));
+	tiles.push_back(new NormalTile("blue", 9, 0));
+	tiles.push_back(new NormalTile("yellow", 9, 0));
+	form.push_back(new Formation(tiles));
+
+	for (const auto& f : form)
+	{
+		f->displayFormationinfo();
+		cout << endl;
+	}
+
+	if (Game::checkfirstmeld(form))
+	{
+		cout << "valid first meld\n";
+	}
+	else
+	{
+		cout << "not a valid first meld\n";
+	}
+	cout << endl << " --------------------------------" << endl;
+	form.clear();
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("yellow", 1, 0));
+	tiles.push_back(new NormalTile("yellow", 2, 0));
+	tiles.push_back(new NormalTile("yellow", 3, 0));
+	form.push_back(new Formation(tiles));
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 9, 0));
+	tiles.push_back(new NormalTile("black", 9, 0));
+	tiles.push_back(new JokerTile(1));
+	tiles.push_back(new NormalTile("yellow", 9, 0));
+	form.push_back(new Formation(tiles));
+
+	for (const auto& f : form)
+	{
+		f->displayFormationinfo();
+		cout << endl;
+	}
+
+	if (Game::checkfirstmeld(form))
+	{
+		cout << "valid first meld\n";
+	}
+	else
+	{
+		cout << "not a valid first meld\n";
+	}
+	cout << endl << " --------------------------------" << endl;
+	form.clear();
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("yellow", 2, 0));
+	tiles.push_back(new NormalTile("yellow", 3, 0));
+	tiles.push_back(new NormalTile("yellow", 4, 0));
+	form.push_back(new Formation(tiles));
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("blue", 11, 0));
+	tiles.push_back(new NormalTile("blue", 12, 0));
+	tiles.push_back(new NormalTile("blue", 13, 0));
+	form.push_back(new Formation(tiles));
+
+	for (const auto& f : form)
+	{
+		f->displayFormationinfo();
+		cout << endl;
+	}
+
+	if (Game::checkfirstmeld(form))
+	{
+		cout << "valid first meld\n";
+	}
+	else
+	{
+		cout << "not a valid first meld\n";
+	}
+	cout << endl << " --------------------------------" << endl;
+	form.clear();
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 9, 0));
+	tiles.push_back(new NormalTile("black", 9, 0));
+	tiles.push_back(new NormalTile("yellow", 9, 0));
+	form.push_back(new Formation(tiles));
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 12, 0));
+	tiles.push_back(new NormalTile("black", 12, 0));
+	tiles.push_back(new NormalTile("blue", 12, 0));
+	form.push_back(new Formation(tiles));
+
+	for (const auto& f : form)
+	{
+		f->displayFormationinfo();
+		cout << endl;
+	}
+
+	if (Game::checkfirstmeld(form))
+	{
+		cout << "valid first meld\n";
+	}
+	else
+	{
+		cout << "not a valid first meld\n";
+	}
+	cout << endl << " --------------------------------" << endl;
+	form.clear();
 }
 
 #endif

@@ -16,6 +16,7 @@ const int tilesno = 13;
 const int nono = 2;
 const int tilesingameno = 106;
 const int maxtilesonboard = 15;
+const int min_no_points_first_meld = 45;
 
 class Tile
 {
@@ -369,8 +370,9 @@ public:
 	bool valid;
 	bool jokerinformation;
 	string type;
-	vector <Tile*> formationtiles;				// actual formation tiles 
+	vector <Tile*> formationtiles;				
 	int points;
+	//Player* fplayer;
 	static int formationno;
 	int formationid;
 
@@ -380,6 +382,7 @@ public:
 		melded = false;
 		jokerinformation = false;
 		valid = true;								// assume formation is valid
+		//fplayer = NULL;
 
 		//adding tiles to formation
 		for (const auto& tile : tilesforformation)
@@ -420,6 +423,12 @@ public:
 		{
 			valid = checkFormationvalid(formationtiles);
 		}
+
+		// set downpoints
+		if (valid)
+		{
+			setdownpointsFormation();
+		}
 	}
 
 	Formation(vector<Tile*> tilesforformation)
@@ -428,6 +437,7 @@ public:
 		melded = false;
 		jokerinformation = false;
 		valid = true;								// assume formation is valid
+		//fplayer = NULL;
 
 		//adding tiles to formation
 		for (const auto& tile : tilesforformation)
@@ -507,6 +517,12 @@ public:
 		if (valid)
 		{
 			valid = checkFormationvalid(formationtiles);
+		}
+
+		// set downpoints
+		if (valid)
+		{
+			setdownpointsFormation();
 		}
 	}
 
@@ -813,11 +829,50 @@ public:
 		for (const auto& tile : formationtiles)
 		{
 			tile->displayInfo();
+			if (valid)
+			{
+				cout << "(P:" << tile->downpoints << ") ";
+			}	
 		}
 		cout << endl;
 		cout << "Type: "<< type << "\nValid: " << valid << "\nId: " << formationid << "\nMelded: " << melded << "\n";
 	}
 	
+	void setdownpointsFormation()
+	{
+		for (const auto& tile : formationtiles)
+		{
+			if (tile->getnumber() == 1)
+			{
+				if (type == "set")
+				{
+					tile->downpoints = 25;
+				}
+				else if (type == "run")
+				{
+					// 1 - 2 - 3 - ...
+					if (formationtiles[1]->getnumber() == 2)
+					{
+						tile->downpoints = 5;
+					}
+					// ... - 12 - 13 - 1 
+					if (formationtiles[formationtiles.size() - 2]->getnumber() == 13)
+					{
+						tile->downpoints = 10;
+					}
+				}
+			}
+			else if (tile->getnumber() >= 2 && tile->getnumber() <= 9)
+			{
+				tile->downpoints = 5;
+			}
+			else if (tile->getnumber() >= 10 && tile->getnumber() <= 13)
+			{
+				tile->downpoints = 10;
+			}
+		}
+	}
+
 	// check if formation is valid
 	bool checkFormationvalid(vector <Tile*> tilesfor)
 	{
@@ -879,6 +934,7 @@ public:
 				}
 
 			}
+			setdownpointsFormation();
 			return true;
 		}
 		else if (type == "set")
@@ -943,11 +999,45 @@ public:
 					}
 				}
 			}
+			setdownpointsFormation();
 			return true;
 		}
 		return false;
 	}
 
+	// not done
+	void addtoFormation(vector <Tile*> tilestoadd)
+	{
+		vector <Tile*> copy = formationtiles;
+		if (valid)
+		{
+			if (type == "run")
+			{
+
+			}
+			else if (type == "set")
+			{
+				for (const auto& tile : tilestoadd)
+				{
+					copy.push_back(tile);
+				}
+				cout << "before";
+				Tile::DisplayTiles(formationtiles);
+				if (checkSet(copy))
+				{
+					for (const auto& tile : tilestoadd)
+					{
+						formationtiles.push_back(tile);
+						handlejokerinformation(formationtiles);
+					}
+				}
+				displayFormationinfo();
+			}
+		}
+	}
+
+	
+	
 };
 
 int Formation::formationno = 0;
@@ -960,6 +1050,7 @@ public:
 	int match_points;
 	int total_points;
 	int playerno;
+	vector<Formation*> formations;
 
 	Player()
 	{
@@ -1128,7 +1219,7 @@ int Player::number_of_players = 0;
 class Game
 {
 public:
-	int multiplier;
+	int matchmultiplier;
 	int roundpointer;
 	int matchpointer;
 
@@ -1136,7 +1227,37 @@ public:
 	{
 		roundpointer = 0;
 		matchpointer = 0;
-		multiplier = 1;
+		matchmultiplier = 1;
+	}
+
+	static bool checkfirstmeld(vector <Formation*> formations)
+	{
+		bool run = false; bool set = false; int points = 0;
+		// check formations
+		for (const auto& f : formations)
+		{
+			if (f->valid == false)
+			{
+				return false;
+			}
+			if (f->type == "run")
+			{
+				run = true;
+			}
+			else if (f->type == "set")
+			{
+				set = true;
+			}
+			for (const auto& tile : f->formationtiles)
+			{
+				points += tile->downpoints;
+			}
+		}
+		if (run && set && points >= min_no_points_first_meld)
+		{
+			return true;
+		}
+		return false;
 	}
 
 	vector <Tile*> DivideStacks(vector <vector<Tile*>> stacks, vector <Tile*>& alltiles, vector <Player*>& players)
@@ -1263,6 +1384,7 @@ public:
 	void Match(vector <Player*>& players, vector <Tile*>& stackqueue, vector <Tile*>& alltiles, vector <Tile*>& queue)
 	{
 		// choose player to start (with 15 tiles):
+		matchmultiplier = 1;
 		for (const auto& player : players)
 		{
 			if (player->playerboard->tilesnoboard == maxtilesonboard)
