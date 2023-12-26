@@ -223,10 +223,12 @@ class JokerTile : public Tile
 {
 public:
 	vector<Tile*> replacingtiles;
+	bool replacable;
 
 	JokerTile(int no) : Tile("joker", no)
 	{
 		finalpoints = 50;
+		replacable = true;
 	}
 
 	void displayInfo() const override
@@ -1036,8 +1038,7 @@ public:
 		}
 	}
 
-	
-	
+
 };
 
 int Formation::formationno = 0;
