@@ -18,7 +18,8 @@ int main()
 	Console rummy_console;
 
 	// FOR TESTING:
-	testformations();
+	//testformations();
+	testfirstmeld();
 	rummy_console.pause_console();
 
 

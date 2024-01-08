@@ -808,4 +808,236 @@ void testformations()
 	form.clear();
 }
 
+void testfirstmeld()
+{
+	vector<Formation*> form;
+	vector<Tile*> tiles;
+	Player* player1 = new Player();
+
+	cout << "----------------------- First Meld ------------------------------\n";
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("black", 9, 0));
+	player1->playerboard->board_tiles.push_back(new NormalTile("black", 9, 0));
+	tiles.push_back(new NormalTile("red", 9, 0));
+	player1->playerboard->board_tiles.push_back(new NormalTile("red", 9, 0));
+	tiles.push_back(new NormalTile("yellow", 9, 0));
+	player1->playerboard->board_tiles.push_back(new NormalTile("yellow", 9, 0));
+	form.push_back(new Formation(tiles));
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 7, 0));
+	player1->playerboard->board_tiles.push_back(new NormalTile("red", 7, 0));
+	tiles.push_back(new NormalTile("red", 8, 0));
+	player1->playerboard->board_tiles.push_back(new NormalTile("red", 8, 0));
+	tiles.push_back(new NormalTile("red", 9, 0));
+	player1->playerboard->board_tiles.push_back(new NormalTile("red", 9, 0));
+	form.push_back(new Formation(tiles));
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("yellow", 2, 0));
+	player1->playerboard->board_tiles.push_back(new NormalTile("yellow", 2, 0));
+	tiles.push_back(new NormalTile("yellow", 3, 0));
+	player1->playerboard->board_tiles.push_back(new NormalTile("yellow", 3, 0));
+	tiles.push_back(new NormalTile("yellow", 4, 0));
+	player1->playerboard->board_tiles.push_back(new NormalTile("yellow", 4, 0));
+	form.push_back(new Formation(tiles));
+
+	for (const auto& f : form)
+	{
+		f->displayFormationinfo();
+		cout << endl;
+	}
+
+	if (Game::checkfirstmeld(form))
+	{
+		cout << "valid first meld\n";
+	}
+	else
+	{
+		cout << "not a valid first meld\n";
+	}
+	cout << endl << " --------------------------------" << endl;
+	form.clear();
+	player1->FirstMeld(form);
+	cout << player1->match_points << endl;
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 7, 0));
+	tiles.push_back(new NormalTile("red", 8, 0));
+	tiles.push_back(new NormalTile("red", 9, 0));
+	form.push_back(new Formation(tiles));
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 12, 0));
+	tiles.push_back(new NormalTile("black", 12, 0));
+	tiles.push_back(new NormalTile("blue", 12, 0));
+	form.push_back(new Formation(tiles));
+
+	for (const auto& f : form)
+	{
+		f->displayFormationinfo();
+		cout << endl;
+	}
+
+	if (Game::checkfirstmeld(form))
+	{
+		cout << "valid first meld\n";
+	}
+	else
+	{
+		cout << "not a valid first meld\n";
+	}
+	cout << endl << " --------------------------------" << endl;
+	form.clear();
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("yellow", 9, 0));
+	tiles.push_back(new NormalTile("yellow", 10, 0));
+	tiles.push_back(new JokerTile(1));
+	tiles.push_back(new NormalTile("yellow", 12, 0));
+	form.push_back(new Formation(tiles));
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 9, 0));
+	tiles.push_back(new NormalTile("black", 9, 0));
+	tiles.push_back(new NormalTile("blue", 9, 0));
+	form.push_back(new Formation(tiles));
+
+	for (const auto& f : form)
+	{
+		f->displayFormationinfo();
+		cout << endl;
+	}
+
+	if (Game::checkfirstmeld(form))
+	{
+		cout << "valid first meld\n";
+	}
+	else
+	{
+		cout << "not a valid first meld\n";
+	}
+	cout << endl << " --------------------------------" << endl;
+	form.clear();
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("yellow", 2, 0));
+	tiles.push_back(new NormalTile("yellow", 3, 0));
+	tiles.push_back(new NormalTile("yellow", 4, 0));
+	form.push_back(new Formation(tiles));
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 9, 0));
+	tiles.push_back(new NormalTile("black", 9, 0));
+	tiles.push_back(new NormalTile("blue", 9, 0));
+	tiles.push_back(new NormalTile("yellow", 9, 0));
+	form.push_back(new Formation(tiles));
+
+	for (const auto& f : form)
+	{
+		f->displayFormationinfo();
+		cout << endl;
+	}
+
+	if (Game::checkfirstmeld(form))
+	{
+		cout << "valid first meld\n";
+	}
+	else
+	{
+		cout << "not a valid first meld\n";
+	}
+	cout << endl << " --------------------------------" << endl;
+	form.clear();
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("yellow", 1, 0));
+	tiles.push_back(new NormalTile("yellow", 2, 0));
+	tiles.push_back(new NormalTile("yellow", 3, 0));
+	form.push_back(new Formation(tiles));
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 9, 0));
+	tiles.push_back(new NormalTile("black", 9, 0));
+	tiles.push_back(new JokerTile(1));
+	tiles.push_back(new NormalTile("yellow", 9, 0));
+	form.push_back(new Formation(tiles));
+
+	for (const auto& f : form)
+	{
+		f->displayFormationinfo();
+		cout << endl;
+	}
+
+	if (Game::checkfirstmeld(form))
+	{
+		cout << "valid first meld\n";
+	}
+	else
+	{
+		cout << "not a valid first meld\n";
+	}
+	cout << endl << " --------------------------------" << endl;
+	form.clear();
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("yellow", 2, 0));
+	tiles.push_back(new NormalTile("yellow", 3, 0));
+	tiles.push_back(new NormalTile("yellow", 4, 0));
+	form.push_back(new Formation(tiles));
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("blue", 11, 0));
+	tiles.push_back(new NormalTile("blue", 12, 0));
+	tiles.push_back(new NormalTile("blue", 13, 0));
+	form.push_back(new Formation(tiles));
+
+	for (const auto& f : form)
+	{
+		f->displayFormationinfo();
+		cout << endl;
+	}
+
+	if (Game::checkfirstmeld(form))
+	{
+		cout << "valid first meld\n";
+	}
+	else
+	{
+		cout << "not a valid first meld\n";
+	}
+	cout << endl << " --------------------------------" << endl;
+	form.clear();
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 9, 0));
+	tiles.push_back(new NormalTile("black", 9, 0));
+	tiles.push_back(new NormalTile("yellow", 9, 0));
+	form.push_back(new Formation(tiles));
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 12, 0));
+	tiles.push_back(new NormalTile("black", 12, 0));
+	tiles.push_back(new NormalTile("blue", 12, 0));
+	form.push_back(new Formation(tiles));
+
+	for (const auto& f : form)
+	{
+		f->displayFormationinfo();
+		cout << endl;
+	}
+
+	if (Game::checkfirstmeld(form))
+	{
+		cout << "valid first meld\n";
+	}
+	else
+	{
+		cout << "not a valid first meld\n";
+	}
+	cout << endl << " --------------------------------" << endl;
+	form.clear();
+}
+
 #endif

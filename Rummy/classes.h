@@ -7,16 +7,23 @@
 #include <ctime>   
 #include <random>
 #include <map>
+
 #include "console_h.h"
+
 using namespace std;
 
 const int stacksno = 15;
 const int tilesinstackno = 7;
+
 const int tilesno = 13;
 const int nono = 2;
+
 const int tilesingameno = 106;
+
 const int maxtilesonboard = 15;
+
 const int min_no_points_first_meld = 45;
+
 
 class Tile
 {
@@ -34,7 +41,7 @@ public:
 		finalpoints = 0;
 		atu = false;
 		move = true;
-	}
+	} 
 
 	void virtual displayInfo() const
 	{
@@ -1051,6 +1058,7 @@ public:
 	int match_points;
 	int total_points;
 	int playerno;
+	bool firstmeld;
 	vector<Formation*> formations;
 
 	Player()
@@ -1060,6 +1068,7 @@ public:
 		playerno = number_of_players;
 		match_points = 0;
 		total_points = 0;
+		firstmeld = false;
 	}
 
 	void displayPlayerinfo() const
@@ -1079,6 +1088,7 @@ public:
 	{
 		playerboard = new Board();
 		match_points = 0;
+		firstmeld = false;
 	}
 
 	static void DisplayPlayers(vector <Player*>& players)
@@ -1213,6 +1223,71 @@ public:
 		}
 	}
 
+	void removetileboard(Tile* tiletoremove)
+	{
+		for (int i = 0; i < playerboard->board_tiles.size(); i++)
+		{
+			if ((tiletoremove->type == "joker" && tiletoremove->type == playerboard->board_tiles[i]->type) ||
+				(playerboard->board_tiles[i]->getnumber() == tiletoremove->getnumber()
+					&& playerboard->board_tiles[i]->getcolour() == tiletoremove->getcolour()))
+			{
+				playerboard->board_tiles.erase(playerboard->board_tiles.begin() + i);
+				playerboard->tilesnoboard--;
+				break;
+			}
+		}
+	}
+	static bool checkfirstmeld(vector <Formation*> formations)
+	{
+		bool run = false; bool set = false; int points = 0;
+		// check formations
+		for (const auto& f : formations)
+		{
+			if (f->valid == false)
+			{
+				return false;
+			}
+			if (f->type == "run")
+			{
+				run = true;
+			}
+			else if (f->type == "set")
+			{
+				set = true;
+			}
+			for (const auto& tile : f->formationtiles)
+			{
+				points += tile->downpoints;
+			}
+		}
+		if (run && set && points >= min_no_points_first_meld)
+		{
+			return true;
+		}
+		return false;
+	}
+
+	void FirstMeld(vector<Formation*> formationstomeld)
+	{
+		if (!firstmeld)
+		{
+			if(checkfirstmeld(formationstomeld))
+			{
+				firstmeld = true;
+				// add final points to player and remove tiles from board
+				for (const auto& f : formationstomeld)
+				{
+					// add formation to player
+					formations.push_back(f);
+					for (const auto& tile : f->formationtiles)
+					{
+						match_points += tile->finalpoints;
+						removetileboard(tile);
+					}
+				}
+			}
+		}
+	}
 };
 
 int Player::number_of_players = 0;
@@ -1230,7 +1305,6 @@ public:
 		matchpointer = 0;
 		matchmultiplier = 1;
 	}
-
 	static bool checkfirstmeld(vector <Formation*> formations)
 	{
 		bool run = false; bool set = false; int points = 0;
@@ -1385,7 +1459,6 @@ public:
 	void Match(vector <Player*>& players, vector <Tile*>& stackqueue, vector <Tile*>& alltiles, vector <Tile*>& queue)
 	{
 		// choose player to start (with 15 tiles):
-		matchmultiplier = 1;
 		for (const auto& player : players)
 		{
 			if (player->playerboard->tilesnoboard == maxtilesonboard)
@@ -1422,9 +1495,13 @@ public:
 				stackqueue.erase(stackqueue.begin());
 			}
 
+
+			// PLAYER PUTS TILE IN QUEUE -> END OF ROUND
+			// 
+			// 
 			// get player input for tile
 			players[roundpointer]->displayPlayerinfo();
-			cout << "Choose card to put in queue." << endl;
+			cout << "Choose tile to put in queue." << endl;
 			while (true)
 			{
 				tie(currenttype, currentnumber, currentcolour) = players[roundpointer]->getPlayerInputTile();
@@ -1445,7 +1522,7 @@ public:
 			queue.push_back(currentTile);
 			Player::DisplayPlayers(players);
 			cout << "Queue: ";  Tile::DisplayTiles(queue);
-			queue[0]->move = false;			// cannot pick the first card
+			queue[0]->move = false;			// cannot pick the first tile
 
 			// next player:
 			if (roundpointer == Player::number_of_players - 1)
