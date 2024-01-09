@@ -835,16 +835,18 @@ public:
 
 	void displayFormationinfo()
 	{
+		int sum = 0;
 		for (const auto& tile : formationtiles)
 		{
 			tile->displayInfo();
 			if (valid)
 			{
 				cout << "(P:" << tile->downpoints << ") ";
+				sum += tile->downpoints;
 			}	
 		}
 		cout << endl;
-		cout << "Type: "<< type << "\nValid: " << valid << "\nId: " << formationid << "\nMelded: " << melded << "\n";
+		cout << "Type: "<< type << "\nPoints: "<< sum <<"\nValid: " << valid << "\nId: " << formationid << "\nMelded: " << melded << "\n";
 	}
 	
 	void setdownpointsFormation()
@@ -1192,9 +1194,13 @@ public:
 		// get Type:
 		string stringp;
 		cout << "Insert Tile Details:\n";
-		cout << "Type [n - normal; j - joker]: ";
+		cout << "Type [n - normal; j - joker, e - exit]: ";
 		cin >> stringp;
 
+		if (stringp == "e")
+		{
+			return make_tuple("exit", 0, "exit");
+		}
 		if (stringp == "j")
 		{
 			return make_tuple("joker", 0, "");
@@ -1206,6 +1212,7 @@ public:
 
 			return make_tuple("normal", pnumber, pcolour);
 		}
+		
 		return make_tuple("notvalid", 0, "notvalid");
 	}
 
@@ -1317,10 +1324,10 @@ public:
 						}
 						// add formation to player
 						formations.push_back(f);
+						formations[formations.size() - 1]->melded = true;
 						for (const auto& tile : f->formationtiles)
 						{
 							match_points += tile->finalpoints;
-
 							removetileboard(tile);
 						}
 					}
@@ -1568,6 +1575,250 @@ public:
 		return notonboardtile;
 	}
 
+	void displayPlayerInformationinRound(vector <Player*>& players, vector <Tile*>& stackqueue, vector <Tile*>& queue)
+	{
+		cout << "Queue:" << endl;  Tile::DisplayTiles(queue); cout << endl;
+		cout << "Stacks Queue:" << endl; Tile::DisplayTiles(stackqueue); cout << endl;
+		cout << endl;
+
+		if (players[roundpointer]->firstmeld == true)
+		{
+			cout << "Melded Formations:\n";
+			for (const auto& f : players[roundpointer]->formations)
+			{
+				f->displayFormationinfo(); cout << endl;
+			}
+			cout << endl;
+		}
+
+		players[roundpointer]->displayPlayerinfo(); cout << endl;
+	}
+
+	void DisplayOnTopScreen(vector <Player*>& players, vector <Tile*>& stackqueue, vector <Tile*>& queue, int ct)
+	{
+		Console::clean_screen();
+		Player::DisplayPlayers(players);
+		cout << "\n\nROUND " << (ct-1)/Player::number_of_players + 1<< endl;
+		cout << "-------------------------------------------------------------- " << endl;
+		Game::displayPlayerInformationinRound(players, stackqueue, queue);
+	}
+
+	void FirstMeldGame(vector <Player*>& players, vector <Tile*>& stackqueue, vector <Tile*>& queue, int& ct)
+	{
+		string currenttype, currentcolour;
+		int currentnumber;
+		Tile* currentTile = new Tile("", 0);
+
+		if (ct > players[roundpointer]->number_of_players)		// not allowed to first meld first round
+		{
+			if (players[roundpointer]->firstmeld == false)
+			{
+				cout << "Do you want to perform your first meld? (y/n): ";
+				string ans;
+				cin >> ans;
+				if (ans == "y")
+				{
+					Console::clean_screen();
+					Player::DisplayPlayers(players); cout << endl;
+					cout << "\n\n -------------------------------------------------------------- " << endl;
+					cout << "PERFORMING FIRST MELD" << endl << endl;
+
+					Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
+
+					// first meld loop
+					while (true)
+					{
+						bool exit = false;
+						// create copy of player's tiles
+						vector<Tile*> tilesonboard;
+						for (const auto& tile : players[roundpointer]->playerboard->board_tiles)
+						{
+							tilesonboard.push_back(tile);
+						}
+
+						Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
+
+						vector<Formation*> formationsinput;
+						int formationcounter = 1;
+
+						// get formations from user
+						while (true)
+						{
+							if (exit)
+							{
+								break;
+							}
+							Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
+							if (formationsinput.size() != 0)
+							{
+								cout << "\n Current Formations:\n";
+								for (const auto& f : formationsinput)
+								{
+									f->displayFormationinfo();
+								}
+								cout << endl;
+							}
+							cout << "\nFormation " << formationcounter << endl;
+
+							int tilescounter = 0;
+							vector<Tile*> tilesforformation;
+
+							// get player tile
+							while (true)
+							{
+								if (exit)
+								{
+									break;
+								}
+								Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
+								if (formationsinput.size() != 0)
+								{
+									cout << "\nCurrent Formations:\n";
+									for (const auto& f : formationsinput)
+									{
+										f->displayFormationinfo();
+									}
+									cout << endl;
+								}
+								cout << endl;
+								if (tilesforformation.size() != 0)
+								{
+									cout << "\nCurrent Tiles for formation:\n";
+									Tile::DisplayTiles(tilesforformation);
+								}
+								cout << "\nRemaining Tiles:\n";
+								Tile::DisplayTiles(tilesonboard); cout << endl;
+
+								cout << "\nFormation " << formationcounter;
+								cout << "\nTile " << tilescounter + 1 << endl << endl;
+								tie(currenttype, currentnumber, currentcolour) = players[roundpointer]->getPlayerInputTile();
+								currentTile = CheckTile(currenttype, currentnumber, currentcolour, tilesonboard);
+
+								if (currenttype == "exit")
+								{
+									exit = true;
+									break;
+								}
+								else if (currentTile->no == 0 && currentTile->type == "notvalid")
+								{
+									cout << "Not a valid tile. Try again.\n" << endl;
+									Console::pause_console();
+								}
+								else // VALID TILE
+								{
+									// delete currentTile from aux player board
+									for (int i = 0; i < tilesonboard.size(); i++)
+									{
+										if (tilesonboard[i]->type == currentTile->type &&
+											tilesonboard[i]->getnumber() == currentTile->getnumber() &&
+											tilesonboard[i]->getcolour() == currentTile->getcolour())
+										{
+											tilesonboard.erase(tilesonboard.begin() + i);
+											break;
+										}
+									}
+
+									cout << endl << endl;
+
+									tilesforformation.push_back(currentTile);
+									tilescounter++;
+
+									if (tilesforformation.size() != 0)
+									{
+										cout << "\nInserted Tiles for Formation " << formationcounter << ":\n";
+										Tile::DisplayTiles(tilesforformation);
+
+									}
+
+									if (tilescounter >= 3)
+									{
+										string answ;
+										cout << "\nWould you like to insert any other tiles? (y/n): ";
+										cin >> answ;
+										if (answ == "n")
+										{
+											break;
+										}
+									}
+									else
+									{
+										Console::pause_console();
+									}
+								}
+							}
+							if (exit)
+							{
+								break;
+							}
+
+							formationsinput.push_back(new Formation(tilesforformation));
+							
+							cout << "\nInserted Formation:\n";
+							formationsinput[formationcounter - 1]->displayFormationinfo(); cout << endl << endl;
+							if (formationsinput[formationcounter - 1]->valid == false)
+							{
+								cout << "Not a valid formation. Please try again.\n\n";
+								Console::pause_console();
+								formationsinput.pop_back();
+								for (const auto& tile : tilesforformation)
+								{
+									if (CheckTile(tile->type, tile->getnumber(), tile->getcolour(), players[roundpointer]->playerboard->board_tiles))
+									{
+										tilesonboard.push_back(tile);
+									}
+								}
+								tilesforformation.clear();
+							}
+							else  // VALID FORMATION
+							{
+								formationcounter++;
+								tilesforformation.clear();
+							}
+
+							if (formationcounter > 2)
+							{
+								string answe;
+								cout << "\nWould you like to meld any other formations? (y/n): ";
+								cin >> answe;
+								if (answe == "n")
+								{
+									break;
+								}
+							}
+							else
+							{
+								Console::pause_console();
+							}
+
+						}
+
+						// check formations
+						players[roundpointer]->FirstMeld(formationsinput);
+						if (players[roundpointer]->firstmeld == true)
+						{
+							cout << "Successfully melded the formations!\n";
+							Console::pause_console();
+							break;
+						}
+						else
+						{
+							cout << "\n\nWould you like to try the first meld again? (y/n): ";
+							string answer;
+							cin >> answer;
+							if (answer == "n")
+							{
+								break;
+							}
+						}
+					}
+				}
+
+			}
+
+		}
+
+	}
+
 	void Match(vector <Player*>& players, vector <Tile*>& stackqueue, vector <Tile*>& alltiles, vector <Tile*>& queue)
 	{
 		// choose player to start (with 15 tiles):
@@ -1578,6 +1829,9 @@ public:
 				Game::roundpointer = player->playerno - 1;
 			}
 		}
+
+		Console::pause_console();
+		Console::clean_screen();
 		
 		// START GAME
 		//
@@ -1586,167 +1840,128 @@ public:
 		int currentnumber;
 		Tile* currentTile = new Tile("", 0);
 			
+
 		int ct = 1; // round counter 
-		for (int i = 0; i <= 9; i++)
+		for (int i = 0; i <= 100; i++)
 		{
-			cout << "\n\n -------------------------------------------------------------- " << endl;
 			Tile* currentTile = new Tile("", 0);
+			bool breakfromqueue = false;
+
+			// DRAW TILE OR BREAK FROM QUEUE
+			Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
 
 			if (ct != 1) // FIRST ROUND; FIRST PLAYER DOES NOT DRAW TILE
 			{
 				if (ct <= players[roundpointer]->number_of_players)  // FIRST ROUND; EVERYONE DRAWS BESIDES FIRST PLAYER
 				{
 					// get tile from stack and add to player
+					cout << "First Round: Automatically drawing a tile from the stacks.\n\n";
+					cout << "Tile drawn from stack: "; stackqueue[0]->displayInfo();  cout << endl << endl;
 					players[roundpointer]->playerboard->board_tiles.push_back(stackqueue[0]);
 					players[roundpointer]->playerboard->tilesnoboard++;
 					stackqueue.erase(stackqueue.begin());
+					Console::pause_console();
 				}
 				else		// OTHER ROUNDS
 				{
 					//choice: break / get tile from stacks
-					players[roundpointer]->playerboard->board_tiles.push_back(stackqueue[0]);
-					players[roundpointer]->playerboard->tilesnoboard++;
-					stackqueue.erase(stackqueue.begin());
-				}
-			}
-
-			// FIRST MELD
-			
-			if (ct > players[roundpointer]->number_of_players)		// not allowed to first meld first round
-			{
-				players[roundpointer]->displayPlayerinfo(); cout << endl;
-				if (players[roundpointer]->firstmeld == false)
-				{
-					cout << "Do you want to perform your first meld? (y/n): ";
-					string ans;
-					cin >> ans;
-					if (ans == "y")
+					while (true)
 					{
-						while (true)
+						Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
+						cout << "\nWould you like to draw a tile from the stack [Option 1] or break the last tile from the queue [Option 2] ? \n[1/2]: ";
+						int ans = 0;
+						string ansstring;
+						cin >> ansstring;
+						try
 						{
-							vector<Formation*> formationsinput;
-							int formationcounter = 1;
-
-							// get formations from user
-							while (true)
+							ans = stoi(ansstring);
+						}
+						catch (exception& err)
+						{
+							cout << "\nError occured. You must insert a number." << endl;
+							Console::pause_console();
+						}
+						if (ans != 0)
+						{
+							if (ans == 1)
 							{
-								cout << "\nFormation " << formationcounter << endl;
-								int tilescounter = 0;
-								vector<Tile*> tilesforformation;
+								cout << "\nOption 1: Tile drawn from stack: "; stackqueue[0]->displayInfo();  cout << endl << endl;
 
-								while (true)
-								{
-									cout << "\nTile " << tilescounter+1 << endl;
-									tie(currenttype, currentnumber, currentcolour) = players[roundpointer]->getPlayerInputTile();
-									currentTile = CheckTile(currenttype, currentnumber, currentcolour, players[roundpointer]->playerboard->board_tiles);
-
-									if (currentTile->no == 0 && currentTile->type == "notvalid")
-									{
-										cout << "Not a valid tile. Try again.\n" << endl;
-									}
-									else // VALID TILE
-									{
-										tilesforformation.push_back(currentTile);
-										tilescounter++;
-										if (tilescounter >= 3)
-										{
-											string answ;
-											cout << "Would you like to insert any other tiles? (y/n): ";
-											cin >> answ;
-											if (answ == "n")
-											{
-												break;
-											}
-										}
-									}
-								}
-								formationsinput.push_back(new Formation(tilesforformation));
-								tilesforformation.clear();
-								cout << "Inserted Formation:\n";
-								formationsinput[formationcounter - 1]->displayFormationinfo();
-								if (formationsinput[formationcounter - 1]->valid == false)
-								{
-									cout << "Not a valid formation. Please try again.\n\n";
-									formationsinput.pop_back();
-								}
-								else
-								{
-									formationcounter++;
-								}
-
-								if (formationcounter > 2)
-								{
-									string answe;
-									cout << "Would you like to meld any other formations? (y/n): ";
-									cin >> answe;
-									if (answe == "n")
-									{
-										break;
-									}
-								}
-
+								players[roundpointer]->playerboard->board_tiles.push_back(stackqueue[0]);
+								players[roundpointer]->playerboard->tilesnoboard++;
+								stackqueue.erase(stackqueue.begin());
+								breakfromqueue = false;
+								Console::pause_console();
+								break;
 							}
-
-							// check formations
-							players[roundpointer]->FirstMeld(formationsinput);
-							if (players[roundpointer]->firstmeld == true)
+							else if (ans == 2)
 							{
-								cout << "Successfully melded the formations!\n";
+								cout << "\nOption 2: Tile broken from stack: "; queue[queue.size()-1]->displayInfo();  cout << endl << endl;
+								breakfromqueue = true;
+								Console::pause_console();
 								break;
 							}
 							else
 							{
-								cout << "There seems to be a problem. Would you like to try again? (y/n): ";
-								string answer;
-								cin >> answer;
-								if (answer == "n")
-								{
-									break;
-								}
+								continue;
 							}
+							break;
 						}
 					}
 					
 				}
-
 			}
 
+			Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
+			
+			if (breakfromqueue)
+			{
 
+			}
+			else // FIRST MELD
+			{
+				FirstMeldGame(players, stackqueue, queue, ct);
+			}
 
 			// PLAYER PUTS TILE IN QUEUE -> END OF ROUND
 			// 
 			// 
 			// get player input for tile to discard
-			players[roundpointer]->displayPlayerinfo(); 
-			cout << "\nChoose tile to put in queue." << endl;
+			
 			while (true)
 			{
+				Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
+				cout << "\nChoose tile to put in queue." << endl<<endl;
+
 				tie(currenttype, currentnumber, currentcolour) = players[roundpointer]->getPlayerInputTile();
 				currentTile = CheckTile(currenttype, currentnumber, currentcolour, players[roundpointer]->playerboard->board_tiles);
-				if (currentTile->no == 0 && currentTile->type == "notvalid")
+				if (currenttype == "exit")
+				{
+					cout << "Not a valid option. You have to insert a tile.\n" << endl;
+					Console::pause_console();
+
+				}
+				else if (currentTile->no == 0 && currentTile->type == "notvalid")
 				{
 					cout << "Not a valid tile. Try again.\n" << endl;
+					Console::pause_console();
 				}
 				else
 				{
 					break;
 				}
 			}
-			cout << "Chosen tile: ";  currentTile->displayInfo(); cout << endl;
+			cout << "\nChosen tile: ";  currentTile->displayInfo(); cout << endl<<endl;
+			Console::pause_console();
 			// remove tile from player and put in queue
 			Player::removeTilefromBoard(currenttype, currentnumber, currentcolour, players[roundpointer]);
 			queue.push_back(currentTile);
+			queue[queue.size() - 1]->move = true;
 			
-			
-			// DISPLAY PLAYER AND QUEUE
-			//
-			//
-			Player::DisplayPlayers(players);
-			cout << "\n\nQueue: ";  Tile::DisplayTiles(queue);
-			cout << "\n\nStack: "; Tile::DisplayTiles(stackqueue);
+
 			queue[0]->move = false;			// cannot pick the first tile
 
-			// Next player:
+			// GO TO NEXT PLAYER
 			if (roundpointer == Player::number_of_players - 1)
 			{
 				roundpointer = 0;
