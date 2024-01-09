@@ -22,6 +22,10 @@ int main()
 	// testfirstmeld();
 	// rummy_console.pause_console();
 
+	testfirstmeldbreakingame();
+	rummy_console.pause_console();
+
+
 
 	Game game;
 	vector <Tile*> alltiles = Tile::CreateTiles();

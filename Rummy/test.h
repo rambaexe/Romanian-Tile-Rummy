@@ -1085,4 +1085,76 @@ void testfirstmeld()
 	player1->ResetPlayer();
 }
 
+void testfirstmeldbreakingame()
+{
+	Game game;
+	vector <Tile*> alltiles = Tile::CreateTiles();
+	vector <Player*> players = Player::InitialiseNPlayers(2);
+
+
+	// ONE RUN: 
+	vector <vector <Tile*>> stacks = Tile::CreateStacks(alltiles);
+	Tile::DisplayStacks(stacks);
+	vector <Tile*> stackqueue;
+
+	vector<Tile*> tiles;
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("black", 10,	1));
+	tiles.push_back(new NormalTile("yellow", 10, 1));
+	tiles.push_back(new NormalTile("red", 10, 1));
+	tiles.push_back(new NormalTile("blue", 10, 1));
+	tiles.push_back(new NormalTile("black", 11, 2));
+	tiles.push_back(new NormalTile("black", 12, 2));
+	tiles.push_back(new NormalTile("yellow", 13, 1));
+	tiles.push_back(new NormalTile("blue", 13, 1));
+	tiles.push_back(new NormalTile("red", 13, 1));
+
+
+	players[0]->playerboard->addtoBoard(tiles);
+
+
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 9, 1));
+	tiles.push_back(new NormalTile("blue", 9, 2));
+	tiles.push_back(new NormalTile("yellow", 6, 1));
+	tiles.push_back(new NormalTile("black", 10, 2));
+	
+
+	players[1]->playerboard->addtoBoard(tiles);
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 9, 1));
+	tiles.push_back(new NormalTile("blue", 9, 2));
+	tiles.push_back(new NormalTile("yellow", 6, 1));
+	tiles.push_back(new NormalTile("yellow", 10, 1));
+	tiles.push_back(new NormalTile("black", 10, 1));
+	tiles.push_back(new NormalTile("black", 10, 2));
+	tiles.push_back(new NormalTile("red", 10, 1));
+	tiles.push_back(new NormalTile("blue", 10, 1));
+	tiles.push_back(new NormalTile("black", 9, 1));
+	tiles.push_back(new NormalTile("black", 11, 2));
+	tiles.push_back(new NormalTile("black", 12, 2));
+	tiles.push_back(new NormalTile("yellow", 13, 1));
+	tiles.push_back(new NormalTile("blue", 13, 1));
+	tiles.push_back(new NormalTile("red", 13, 1));
+
+
+	for (const auto& t : tiles)
+	{
+		stackqueue.push_back(t);
+	}
+
+
+	// vector <Tile*> stackqueue = game.DivideStacks(stacks, alltiles, players);
+	vector <Tile*> queue;
+
+	// Player::DisplayPlayers(players);
+	cout << endl;
+	cout << "Stacks queue:" << endl;
+	Tile::DisplayTiles(stackqueue); cout << endl;
+	game.Match(players, stackqueue, alltiles, queue);
+}
+
 #endif
