@@ -18,9 +18,9 @@ int main()
 	Console rummy_console;
 
 	// FOR TESTING:
-	//testformations();
-	testfirstmeld();
-	rummy_console.pause_console();
+	// testformations();
+	// testfirstmeld();
+	// rummy_console.pause_console();
 
 
 	Game game;
@@ -42,6 +42,7 @@ int main()
 	Tile::DisplayTiles(stackqueue); cout << endl;
 	
 	game.Match(players, stackqueue, alltiles, queue);
+	rummy_console.pause_console();
 	game.Reset_Match(alltiles, players);
 
 	

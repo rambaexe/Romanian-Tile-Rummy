@@ -818,33 +818,28 @@ void testfirstmeld()
 
 	tiles.clear();
 	tiles.push_back(new NormalTile("black", 9, 0));
-	player1->playerboard->board_tiles.push_back(new NormalTile("black", 9, 0));
 	tiles.push_back(new NormalTile("red", 9, 0));
-	player1->playerboard->board_tiles.push_back(new NormalTile("red", 9, 0));
 	tiles.push_back(new NormalTile("yellow", 9, 0));
-	player1->playerboard->board_tiles.push_back(new NormalTile("yellow", 9, 0));
 	form.push_back(new Formation(tiles));
+	player1->playerboard->addtoBoard(tiles);
 
 	tiles.clear();
 	tiles.push_back(new NormalTile("red", 7, 0));
-	player1->playerboard->board_tiles.push_back(new NormalTile("red", 7, 0));
 	tiles.push_back(new NormalTile("red", 8, 0));
-	player1->playerboard->board_tiles.push_back(new NormalTile("red", 8, 0));
 	tiles.push_back(new NormalTile("red", 9, 0));
-	player1->playerboard->board_tiles.push_back(new NormalTile("red", 9, 0));
 	form.push_back(new Formation(tiles));
+	player1->playerboard->addtoBoard(tiles);
 
 	tiles.clear();
 	tiles.push_back(new NormalTile("yellow", 2, 0));
-	player1->playerboard->board_tiles.push_back(new NormalTile("yellow", 2, 0));
 	tiles.push_back(new NormalTile("yellow", 3, 0));
-	player1->playerboard->board_tiles.push_back(new NormalTile("yellow", 3, 0));
 	tiles.push_back(new NormalTile("yellow", 4, 0));
-	player1->playerboard->board_tiles.push_back(new NormalTile("yellow", 4, 0));
 	form.push_back(new Formation(tiles));
+	player1->playerboard->addtoBoard(tiles);
 
 	for (const auto& f : form)
 	{
+
 		f->displayFormationinfo();
 		cout << endl;
 	}
@@ -857,22 +852,29 @@ void testfirstmeld()
 	{
 		cout << "not a valid first meld\n";
 	}
+	player1->playerboard->displayBoardinfo();
+	player1->FirstMeld(form);
+	player1->playerboard->displayBoardinfo();
+	player1->displayPlayerinfo();
+
 	cout << endl << " --------------------------------" << endl;
 	form.clear();
-	player1->FirstMeld(form);
-	cout << player1->match_points << endl;
+	player1->ResetPlayer();
+	
 
 	tiles.clear();
 	tiles.push_back(new NormalTile("red", 7, 0));
 	tiles.push_back(new NormalTile("red", 8, 0));
 	tiles.push_back(new NormalTile("red", 9, 0));
 	form.push_back(new Formation(tiles));
+	player1->playerboard->addtoBoard(tiles);
 
 	tiles.clear();
 	tiles.push_back(new NormalTile("red", 12, 0));
 	tiles.push_back(new NormalTile("black", 12, 0));
 	tiles.push_back(new NormalTile("blue", 12, 0));
 	form.push_back(new Formation(tiles));
+	player1->playerboard->addtoBoard(tiles);
 
 	for (const auto& f : form)
 	{
@@ -888,8 +890,14 @@ void testfirstmeld()
 	{
 		cout << "not a valid first meld\n";
 	}
+	player1->playerboard->displayBoardinfo();
+	player1->FirstMeld(form);
+	player1->playerboard->displayBoardinfo();
+	player1->displayPlayerinfo();
+
 	cout << endl << " --------------------------------" << endl;
 	form.clear();
+	player1->ResetPlayer();
 
 	tiles.clear();
 	tiles.push_back(new NormalTile("yellow", 9, 0));
@@ -897,12 +905,14 @@ void testfirstmeld()
 	tiles.push_back(new JokerTile(1));
 	tiles.push_back(new NormalTile("yellow", 12, 0));
 	form.push_back(new Formation(tiles));
+	player1->playerboard->addtoBoard(tiles);
 
 	tiles.clear();
 	tiles.push_back(new NormalTile("red", 9, 0));
 	tiles.push_back(new NormalTile("black", 9, 0));
 	tiles.push_back(new NormalTile("blue", 9, 0));
 	form.push_back(new Formation(tiles));
+	player1->playerboard->addtoBoard(tiles);
 
 	for (const auto& f : form)
 	{
@@ -918,14 +928,21 @@ void testfirstmeld()
 	{
 		cout << "not a valid first meld\n";
 	}
+
+	player1->playerboard->displayBoardinfo();
+	player1->FirstMeld(form);
+	player1->playerboard->displayBoardinfo();
+	player1->displayPlayerinfo();
 	cout << endl << " --------------------------------" << endl;
 	form.clear();
+	player1->ResetPlayer();
 
 	tiles.clear();
 	tiles.push_back(new NormalTile("yellow", 2, 0));
 	tiles.push_back(new NormalTile("yellow", 3, 0));
 	tiles.push_back(new NormalTile("yellow", 4, 0));
 	form.push_back(new Formation(tiles));
+	player1->playerboard->addtoBoard(tiles);
 
 	tiles.clear();
 	tiles.push_back(new NormalTile("red", 9, 0));
@@ -933,6 +950,7 @@ void testfirstmeld()
 	tiles.push_back(new NormalTile("blue", 9, 0));
 	tiles.push_back(new NormalTile("yellow", 9, 0));
 	form.push_back(new Formation(tiles));
+	player1->playerboard->addtoBoard(tiles);
 
 	for (const auto& f : form)
 	{
@@ -948,14 +966,21 @@ void testfirstmeld()
 	{
 		cout << "not a valid first meld\n";
 	}
+
+	player1->playerboard->displayBoardinfo();
+	player1->FirstMeld(form);
+	player1->playerboard->displayBoardinfo();
+	player1->displayPlayerinfo();
 	cout << endl << " --------------------------------" << endl;
 	form.clear();
+	player1->ResetPlayer();
 
 	tiles.clear();
 	tiles.push_back(new NormalTile("yellow", 1, 0));
 	tiles.push_back(new NormalTile("yellow", 2, 0));
 	tiles.push_back(new NormalTile("yellow", 3, 0));
 	form.push_back(new Formation(tiles));
+	player1->playerboard->addtoBoard(tiles);
 
 	tiles.clear();
 	tiles.push_back(new NormalTile("red", 9, 0));
@@ -963,6 +988,7 @@ void testfirstmeld()
 	tiles.push_back(new JokerTile(1));
 	tiles.push_back(new NormalTile("yellow", 9, 0));
 	form.push_back(new Formation(tiles));
+	player1->playerboard->addtoBoard(tiles);
 
 	for (const auto& f : form)
 	{
@@ -978,20 +1004,27 @@ void testfirstmeld()
 	{
 		cout << "not a valid first meld\n";
 	}
+	player1->playerboard->displayBoardinfo();
+	player1->FirstMeld(form);
+	player1->playerboard->displayBoardinfo();
+	player1->displayPlayerinfo();
 	cout << endl << " --------------------------------" << endl;
 	form.clear();
+	player1->ResetPlayer();
 
 	tiles.clear();
 	tiles.push_back(new NormalTile("yellow", 2, 0));
 	tiles.push_back(new NormalTile("yellow", 3, 0));
 	tiles.push_back(new NormalTile("yellow", 4, 0));
 	form.push_back(new Formation(tiles));
+	player1->playerboard->addtoBoard(tiles);
 
 	tiles.clear();
 	tiles.push_back(new NormalTile("blue", 11, 0));
 	tiles.push_back(new NormalTile("blue", 12, 0));
 	tiles.push_back(new NormalTile("blue", 13, 0));
 	form.push_back(new Formation(tiles));
+	player1->playerboard->addtoBoard(tiles);
 
 	for (const auto& f : form)
 	{
@@ -1007,20 +1040,27 @@ void testfirstmeld()
 	{
 		cout << "not a valid first meld\n";
 	}
+	player1->playerboard->displayBoardinfo();
+	player1->FirstMeld(form);
+	player1->playerboard->displayBoardinfo();
+	player1->displayPlayerinfo();
 	cout << endl << " --------------------------------" << endl;
 	form.clear();
+	player1->ResetPlayer();
 
 	tiles.clear();
 	tiles.push_back(new NormalTile("red", 9, 0));
 	tiles.push_back(new NormalTile("black", 9, 0));
 	tiles.push_back(new NormalTile("yellow", 9, 0));
 	form.push_back(new Formation(tiles));
+	player1->playerboard->addtoBoard(tiles);
 
 	tiles.clear();
 	tiles.push_back(new NormalTile("red", 12, 0));
 	tiles.push_back(new NormalTile("black", 12, 0));
 	tiles.push_back(new NormalTile("blue", 12, 0));
 	form.push_back(new Formation(tiles));
+	player1->playerboard->addtoBoard(tiles);
 
 	for (const auto& f : form)
 	{
@@ -1036,8 +1076,13 @@ void testfirstmeld()
 	{
 		cout << "not a valid first meld\n";
 	}
+	player1->playerboard->displayBoardinfo();
+	player1->FirstMeld(form);
+	player1->playerboard->displayBoardinfo();
+	player1->displayPlayerinfo();
 	cout << endl << " --------------------------------" << endl;
 	form.clear();
+	player1->ResetPlayer();
 }
 
 #endif
