@@ -18,6 +18,9 @@
     <ClCompile Include="Rummy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="classes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="classes.h">
@@ -29,5 +32,8 @@
     <ClInclude Include="test.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>

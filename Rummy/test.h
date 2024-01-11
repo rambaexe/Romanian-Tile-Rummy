@@ -1107,8 +1107,13 @@ void testfirstmeldbreakingame()
 	tiles.push_back(new NormalTile("black", 11, 2));
 	tiles.push_back(new NormalTile("black", 12, 2));
 	tiles.push_back(new NormalTile("yellow", 13, 1));
+	tiles.push_back(new NormalTile("black", 13, 1));
 	tiles.push_back(new NormalTile("blue", 13, 1));
 	tiles.push_back(new NormalTile("red", 13, 1));
+	tiles.push_back(new NormalTile("blue", 5, 1));
+	tiles.push_back(new NormalTile("red", 7, 1));
+	tiles.push_back(new NormalTile("yellow", 2, 1));
+	tiles.push_back(new NormalTile("red", 4, 1));
 
 
 	players[0]->playerboard->addtoBoard(tiles);
@@ -1120,6 +1125,10 @@ void testfirstmeldbreakingame()
 	tiles.push_back(new NormalTile("blue", 9, 2));
 	tiles.push_back(new NormalTile("yellow", 6, 1));
 	tiles.push_back(new NormalTile("black", 10, 2));
+	tiles.push_back(new NormalTile("black", 13, 2));
+	tiles.push_back(new NormalTile("red", 5, 2));
+	tiles.push_back(new NormalTile("black", 12, 2));
+	
 	
 
 	players[1]->playerboard->addtoBoard(tiles);

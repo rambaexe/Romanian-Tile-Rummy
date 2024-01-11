@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="classes.cpp" />
     <ClCompile Include="Rummy.cpp" />
   </ItemGroup>
   <ItemGroup>
