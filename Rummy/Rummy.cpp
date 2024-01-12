@@ -22,6 +22,8 @@ int main()
 	// testfirstmeld();
 	// rummy_console.pause_console();
 
+	// testpreset();
+	// rummy_console.pause_console();
 	testfirstmeldbreakingame();
 	rummy_console.pause_console();
 
@@ -47,7 +49,7 @@ int main()
 	
 	game.Match(players, stackqueue, alltiles, queue);
 	rummy_console.pause_console();
-	game.Reset_Match(alltiles, players);
+	//game.Reset_Match(players, stackqueue, alltiles, queue);
 
 	
 	
