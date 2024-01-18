@@ -164,6 +164,10 @@ public:
 	void virtual deleteJokerreplacing() {}
 
 	void virtual deleteJokerreplacingTile(Tile* tiletoadd) {}
+
+	void virtual setreplacable(bool val) {}
+
+	bool virtual getreplacable() { return false; }
 };
 
 class NormalTile : public Tile
@@ -325,6 +329,16 @@ public:
 			}
 		}
 		return col;
+	}
+
+	void setreplacable(bool val) override 
+	{
+		replacable = val;
+	}
+
+	bool getreplacable() override 
+	{
+		return replacable; 
 	}
 	
 };
@@ -1488,39 +1502,36 @@ public:
 	{
 		if (firstmeld)
 		{
-			if (checkfirstmeld(formationstomeld))
+			// check if tiles are on board (or if broken from queue)
+			bool cont = true;
+			for (const auto& form : formationstomeld)
 			{
-				// check if tiles are on board (or if broken from queue)
-				bool cont = true;
-				for (const auto& form : formationstomeld)
+				if (checkTilesonBoard(form->formationtiles) == false)
 				{
-					if (checkTilesonBoard(form->formationtiles) == false)
-					{
-						cont = false;
-					}
+					cont = false;
 				}
-				if (cont)
+			}
+			if (cont)
+			{
+				// add final points to player and remove tiles from board
+				for (const auto& f : formationstomeld)
 				{
-					firstmeld = true;
-					// add final points to player and remove tiles from board
-					for (const auto& f : formationstomeld)
+					// change move of tiles besides joker
+					for (const auto& tile : f->formationtiles)
 					{
-						// change move of tiles besides joker
-						for (const auto& tile : f->formationtiles)
-						{
-							tile->move = false;
-						}
-						// add formation to player
-						formations.push_back(f);
-						formations[formations.size() - 1]->melded = true;
-						for (const auto& tile : f->formationtiles)
-						{
-							match_points += tile->finalpoints;
-							removetileboard(tile);
-						}
+						tile->move = false;
+					}
+					// add formation to player
+					formations.push_back(f);
+					formations[formations.size() - 1]->melded = true;
+					for (const auto& tile : f->formationtiles)
+					{
+						match_points += tile->finalpoints;
+						removetileboard(tile);
 					}
 				}
 			}
+			
 		}
 	}
 
@@ -1684,6 +1695,95 @@ public:
 				}
 			}
 		}
+	}
+
+	bool ReplaceJoker(vector<Formation*> formationsinput, Formation* ff, Tile* tileplayer)
+	{
+		// check formation -> replace joker
+		// 
+		// formationsinput -> formation of player
+		// ff: formation where joker was found
+		// tileplayer: tile replacing joker
+		// players[roundpointer] -> player getting the points with formationsinput
+
+		// to do: 
+		// 1. put tileplayer in ff
+		// 2. meld formationsinput with joker
+		// 3. recalculate points for joker + points to player
+		// 4. handle replacement = false;
+
+		
+
+		// check if tiles are on board 
+		bool cont = true;
+		for (const auto& form : formationsinput)
+		{
+			for (const auto& tile : form->formationtiles)
+			{
+				if (tile->type != "joker")
+				{
+					bool ok = false;
+					for (const auto& tttt : playerboard->board_tiles)
+					{
+						if (tttt->type == tile->type && tttt->getnumber() == tile->getnumber() && tttt->getcolour() == tile->getcolour())
+						{
+							ok = true; break;
+						}
+					}
+					if (!ok)
+					{
+						cont = false;
+						break;
+					}
+										
+				}
+			}
+			
+		}
+		if (cont)
+		{
+			for (int i = 0; i < ff->formationtiles.size(); i++)
+			{
+				if (ff->formationtiles[i]->type == "joker")
+				{
+					ff->formationtiles.insert(ff->formationtiles.begin() + i, tileplayer);
+					ff->formationtiles.erase(ff->formationtiles.begin() + i + 1);
+					break;
+				}
+			}
+
+			for (const auto& form : formationsinput)
+			{
+				if (form->checkFormationvalid(form->formationtiles)) // if formation valid
+				{
+					// change move of tiles besides joker
+					for (const auto& tile : form->formationtiles)
+					{
+						tile->move = false;
+					}
+
+					// add formation to player
+					formations.push_back(form);
+					formations[formations.size() - 1]->melded = true;
+					for (const auto& tile : form->formationtiles)
+					{
+						if (tile->type == "joker")
+						{
+							NormalTile* t = new NormalTile(tile->getcolour(), tile->getnumber(), 1);
+							match_points += t->finalpoints;
+							tile->setreplacable(false);				// set joker replacable to false
+						}
+						else
+						{
+							match_points += tile->finalpoints;
+							removetileboard(tile);
+						}
+					}
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 };
 
@@ -3235,6 +3335,356 @@ public:
 		}
 	}
 
+	void ReplaceJokerGame(vector <Player*>& players, vector <Tile*>& stackqueue, vector <Tile*>& queue, int& ct)
+	{
+		string currenttype, currentcolour;
+		int currentnumber;
+		Tile* currentTile = new Tile("", 0);
+
+		if (ct > players[roundpointer]->number_of_players)		// not allowed on first round
+		{
+			
+			Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
+			cout << "Do you want to replace a joker? (y/n): ";
+			string ans;
+			cin >> ans;
+			if (ans == "y")
+			{
+				for (const auto& p : players)
+				{
+					for (const auto& ff : p->formations)
+					{
+						if (ff->jokerinformation == true)
+						{
+							for (const auto& t : ff->formationtiles)
+							{
+								if (t->type == "joker" && t->getreplacable() == true)
+								{
+									vector<string> col = t->getcolourvector();
+									if (col.size() == 1)
+									{
+										// Formation found here
+										for (const auto& tileplayer : players[roundpointer]->playerboard->board_tiles)
+										{
+											if (tileplayer->getcolour() == t->getcolour() && tileplayer->getnumber() == t->getnumber())
+											{
+												// Tile found here
+												while (true)
+												{
+													Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
+													cout << "\n\nFormation:\n\n"; ff->displayFormationinfo();
+													cout << "\n\nTile from player board:"; tileplayer->displayInfo();
+													cout << "\n\nDo you want to replace the joker in the given formation? (y/n): ";
+													string ans2;
+													cin >> ans2;
+
+													if (ans2 == "y")
+													{
+														// ff : formation
+														// tileplayer : tile to replace
+
+														// get formation to put joker in
+														// must use joker
+
+
+														cout << "Nice";
+														Console::pause_console();
+
+														string currenttype, currentcolour;
+														int currentnumber;
+														Tile* currentTile = new Tile("", 0);
+
+														bool found = false;
+														bool ok1 = false;
+
+														while (true)
+														{
+															bool exit = false;
+															// create copy of player's tiles
+															vector<Tile*> tilesonboard;
+															for (const auto& tile : players[roundpointer]->playerboard->board_tiles)
+															{
+																tilesonboard.push_back(tile);
+															}
+
+															Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
+
+															vector<Formation*> formationsinput;
+															int formationcounter = 1;
+
+															// get formation from user
+															while (true)
+															{
+																if (exit)
+																{
+																	break;
+																}
+																Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
+																if (formationsinput.size() != 0)
+																{
+																	cout << "\n Current Formations:\n";
+																	for (const auto& f : formationsinput)
+																	{
+																		f->displayFormationinfo();
+																	}
+																	cout << endl;
+																}
+																cout << "\nFormation " << formationcounter << endl;
+
+																int tilescounter = 0;
+																vector<Tile*> tilesforformation;
+
+																// get player tile
+																while (true && tilesonboard.size() > 1)
+																{
+																	if (exit)
+																	{
+																		break;
+																	}
+																	Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
+																	if (formationsinput.size() != 0)
+																	{
+																		cout << "\nCurrent Formations:\n";
+																		for (const auto& f : formationsinput)
+																		{
+																			f->displayFormationinfo();
+																		}
+																		cout << endl;
+																	}
+																	cout << endl;
+																	if (tilesforformation.size() != 0)
+																	{
+																		cout << "\nCurrent Tiles for formation:\n";
+																		Tile::DisplayTiles(tilesforformation);
+																	}
+																	cout << "\nRemaining Tiles:\n";
+																	Tile::DisplayTiles(tilesonboard); cout << endl;
+																	cout << "\Tile to be used:\njoker\n\n";
+
+
+																	cout << "\nFormation " << formationcounter;
+																	cout << "\nTile " << tilescounter + 1 << endl << endl;
+																	tie(currenttype, currentnumber, currentcolour) = players[roundpointer]->getPlayerInputTile();
+
+
+																	//check if it is joker
+																	if (currenttype == "joker")
+																	{
+																		if (found == true)
+																		{
+																			exit = true;
+																			break;
+																		}
+																		else
+																		{
+																			cout << "\nJoker inserted.\n";
+																			found = true;
+																			JokerTile* j = new JokerTile(1);
+																			tilesforformation.push_back(j);
+																			tilescounter++;
+
+																			if (tilesforformation.size() != 0)
+																			{
+																				cout << "\nInserted Tiles for Formation " << formationcounter << ":\n";
+																				Tile::DisplayTiles(tilesforformation);
+
+																			}
+
+																			if (tilescounter >= 3)
+																			{
+																				string answ;
+																				cout << "\nWould you like to insert any other tiles? (y/n): ";
+																				cin >> answ;
+																				if (answ == "n")
+																				{
+																					break;
+																				}
+																			}
+																			else
+																			{
+																				Console::pause_console();
+																			}
+																		}
+																	}
+																	else
+																	{
+																		currentTile = CheckTile(currenttype, currentnumber, currentcolour, tilesonboard);
+
+																		if (currenttype == "exit")
+																		{
+																			exit = true;
+																			break;
+																		}
+																		else if (currentTile->no == 0 && currentTile->type == "notvalid")
+																		{
+																			cout << "Not a valid tile. Try again.\n" << endl;
+																			Console::pause_console();
+																		}
+																		else // VALID TILE
+																		{
+																			// delete currentTile from aux player board
+																			for (int i = 0; i < tilesonboard.size(); i++)
+																			{
+																				if (tilesonboard[i]->type == currentTile->type &&
+																					tilesonboard[i]->getnumber() == currentTile->getnumber() &&
+																					tilesonboard[i]->getcolour() == currentTile->getcolour())
+																				{
+																					tilesonboard.erase(tilesonboard.begin() + i);
+																					break;
+																				}
+																			}
+
+																			cout << endl << endl;
+
+																			tilesforformation.push_back(currentTile);
+																			tilescounter++;
+
+																			if (tilesforformation.size() != 0)
+																			{
+																				cout << "\nInserted Tiles for Formation " << formationcounter << ":\n";
+																				Tile::DisplayTiles(tilesforformation);
+
+																			}
+
+																			if (tilescounter >= 3)
+																			{
+																				string answ;
+																				cout << "\nWould you like to insert any other tiles? (y/n): ";
+																				cin >> answ;
+																				if (answ == "n")
+																				{
+																					break;
+																				}
+																			}
+																			else
+																			{
+																				Console::pause_console();
+																			}
+																		}
+																	}
+																}
+																if (exit)
+																{
+																	break;
+																}
+
+																formationsinput.push_back(new Formation(tilesforformation));
+
+																cout << "\nInserted Formation:\n";
+																formationsinput[formationcounter - 1]->displayFormationinfo(); cout << endl << endl;
+																Console::pause_console();
+																if (formationsinput[formationcounter - 1]->valid == false)
+																{
+																	cout << "Not a valid formation. Please try again.\n\n";
+																	Console::pause_console();
+																	formationsinput.pop_back();
+																	for (const auto& tile : tilesforformation)
+																	{
+																		if (CheckTile(tile->type, tile->getnumber(), tile->getcolour(), players[roundpointer]->playerboard->board_tiles))
+																		{
+																			tilesonboard.push_back(tile);
+																		}
+																	}
+																	tilesforformation.clear();
+																}
+																else  // VALID FORMATION
+																{
+																	formationcounter++;
+																	tilesforformation.clear();
+																}
+																break;
+																
+															}
+
+															// check if joker in formation
+															bool okut = false;
+															for (const auto& f2 : formationsinput)
+															{
+																for (const auto& te : f2->formationtiles)
+																{
+																	if (te->type == "joker")
+																	{
+																		okut = true;
+																		break;
+																	}
+																}
+															}
+															if (okut == false)
+															{
+																cout << "\n\nYou must use joker in formation!\n\nWould you like to try again? (y/n): ";
+																string answer;
+																cin >> answer;
+																if (answer == "n")
+																{
+																	break;
+																}
+															}
+															else
+															{
+																// check formation -> replace joker
+																// 
+																// formationsinput -> formation of player
+																// ff: formation where joker was found
+																// tileplayer: tile replacing joker
+																// players[roundpointer] -> player getting the points with formationsinput
+
+																// to do: 
+																// 1. put tileplayer in ff
+																// 2. meld formationsinput with joker
+																// 3. recalculate points for joker + points to player
+																// 4. handle replacement = false;
+
+
+																ok1 = players[roundpointer]->ReplaceJoker(formationsinput, ff, tileplayer);
+
+																// bool ok1 = players[roundpointer]->MeldwithBreak(formationsinput, queue[positionofbr], queue, positionofbr);
+
+																if (ok1)
+																{
+																	
+																	cout << "\n\nSuccessfully replaced joker!\n";
+																	Console::pause_console();
+																	break;
+																	
+																}
+																else
+																{
+
+																	cout << "\n\nWould you like to try replacing? (y/n): ";
+																	string answer;
+																	cin >> answer;
+																	if (answer == "n")
+																	{
+																		break;
+																	}
+																}
+															}
+														}
+														if (ok1)
+														{
+															break;
+														}
+
+													}
+													else
+													{
+														break;
+													}
+												}
+
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+
+			}
+		}
+	}
+
 	void DisplayStats(vector <Player*>& players)
 	{
 		Console::clean_screen();
@@ -3603,7 +4053,7 @@ public:
 			if (players[roundpointer]->firstmeld == true && !firstmeldround)
 			{
 				// REPLACE JOKER
-				// check if there is any formation with joker
+				// check if there is any formation with replacable joker
 				bool isformationwithjokeringame = false;
 				for (const auto& p : players)
 				{
@@ -3611,7 +4061,33 @@ public:
 					{
 						if (f->jokerinformation == true)
 						{
-							isformationwithjokeringame = true;
+							for (const auto& t : f->formationtiles)
+							{
+								if (t->type == "joker" && t->getreplacable() == true)
+								{
+									vector<string> col = t->getcolourvector();
+									if (col.size() == 1)						
+									{
+										// Formation found here
+
+										for (const auto& tileplayer : players[roundpointer]->playerboard->board_tiles)
+										{
+											if (tileplayer->getcolour() == t->getcolour() && tileplayer->getnumber() == t->getnumber())
+											{
+												isformationwithjokeringame = true;
+												break;
+											}
+										}
+									}
+								}
+							}
+							if (isformationwithjokeringame == true)
+							{
+								break;
+							}
+						}
+						if (isformationwithjokeringame == true)
+						{
 							break;
 						}
 					}
@@ -3621,9 +4097,15 @@ public:
 					}
 				}
 
+				if (players[roundpointer]->playerboard->board_tiles.size() > 3 && isformationwithjokeringame == true) // Check if player has more than 3 tiles on board
+				{
+					AddToFormationGame(players, stackqueue, queue, ct); // allow to add tiles to formations first
+					ReplaceJokerGame(players, stackqueue, queue, ct); // replace joker
+
+				}
 
 				// MELD FORMATIONS
-				if (players[roundpointer]->playerboard->board_tiles.size() >= 3) // Check if player has more than 3 tiles on board
+				if (players[roundpointer]->playerboard->board_tiles.size() > 3) // Check if player has more than 3 tiles on board
 				{
 					MeldGame(players, stackqueue, queue, ct);
 				}
