@@ -24,7 +24,7 @@ int main()
 
 	// testpreset();
 	// rummy_console.pause_console();
-	testfirstmeldbreakingame();
+	// testfirstmeldbreakingame();
 	rummy_console.pause_console();
 
 
@@ -32,7 +32,7 @@ int main()
 	Game game;
 	vector <Tile*> alltiles = Tile::CreateTiles();
 	//vector <Player*> players = Player::InitialisePlayers();
-	vector <Player*> players = Player::InitialiseNPlayers(4);
+	vector <Player*> players = Player::InitialiseNPlayers(2);
 	
 	
 	// ONE RUN: 

@@ -1711,6 +1711,7 @@ public:
 		// 2. meld formationsinput with joker
 		// 3. recalculate points for joker + points to player
 		// 4. handle replacement = false;
+		// 5. delete tileplayer from players' tiles
 
 		
 
@@ -1742,6 +1743,7 @@ public:
 		}
 		if (cont)
 		{
+			// replace joker in ff formation
 			for (int i = 0; i < ff->formationtiles.size(); i++)
 			{
 				if (ff->formationtiles[i]->type == "joker")
@@ -1751,7 +1753,7 @@ public:
 					break;
 				}
 			}
-
+			
 			for (const auto& form : formationsinput)
 			{
 				if (form->checkFormationvalid(form->formationtiles)) // if formation valid
@@ -1777,6 +1779,18 @@ public:
 						{
 							match_points += tile->finalpoints;
 							removetileboard(tile);
+						}
+					}
+
+					// delete tile replacing joker from player board
+					for (int i = 0; i < playerboard->board_tiles.size(); i++)
+					{
+						if (playerboard->board_tiles[i]->type == tileplayer->type &&
+							playerboard->board_tiles[i]->getnumber() == tileplayer->getnumber() &&
+							playerboard->board_tiles[i]->getcolour() == tileplayer->getcolour())
+						{
+							removetileboard(playerboard->board_tiles[i]);
+							break;
 						}
 					}
 					return true;
@@ -3335,7 +3349,7 @@ public:
 		}
 	}
 
-	void ReplaceJokerGame(vector <Player*>& players, vector <Tile*>& stackqueue, vector <Tile*>& queue, int& ct)
+	bool ReplaceJokerGame(vector <Player*>& players, vector <Tile*>& stackqueue, vector <Tile*>& queue, int& ct)
 	{
 		string currenttype, currentcolour;
 		int currentnumber;
@@ -3352,19 +3366,20 @@ public:
 			{
 				for (const auto& p : players)
 				{
-					for (const auto& ff : p->formations)
+					for (auto& ff : p->formations)	// loop through formations of players
 					{
+						bool ok1 = false;
 						if (ff->jokerinformation == true)
 						{
-							for (const auto& t : ff->formationtiles)
+							for (auto& t : ff->formationtiles)		// loop through tiles of formation to find the joker formation
 							{
 								if (t->type == "joker" && t->getreplacable() == true)
 								{
 									vector<string> col = t->getcolourvector();
-									if (col.size() == 1)
+									if (col.size() == 1)				// joker replaces one tile only
 									{
 										// Formation found here
-										for (const auto& tileplayer : players[roundpointer]->playerboard->board_tiles)
+										for (auto& tileplayer : players[roundpointer]->playerboard->board_tiles)		// loop through tiles to find replacing tile
 										{
 											if (tileplayer->getcolour() == t->getcolour() && tileplayer->getnumber() == t->getnumber())
 											{
@@ -3387,25 +3402,36 @@ public:
 														// must use joker
 
 
-														cout << "Nice";
-														Console::pause_console();
-
 														string currenttype, currentcolour;
 														int currentnumber;
 														Tile* currentTile = new Tile("", 0);
 
 														bool found = false;
-														bool ok1 = false;
+														ok1 = false;
 
-														while (true)
+														while (true)				
 														{
 															bool exit = false;
+
 															// create copy of player's tiles
 															vector<Tile*> tilesonboard;
 															for (const auto& tile : players[roundpointer]->playerboard->board_tiles)
 															{
 																tilesonboard.push_back(tile);
 															}
+
+															// delete tileplayer from tilesonboard
+															for (int i = 0; i<tilesonboard.size(); i++)
+															{
+																if (tileplayer->getnumber() == tilesonboard[i]->getnumber() &&
+																	tileplayer->getcolour() == tilesonboard[i]->getcolour() &&
+																	tileplayer->type == tilesonboard[i]->type)
+																{
+																	tilesonboard.erase(tilesonboard.begin() + i);
+																	break;
+																}
+															}
+
 
 															Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
 
@@ -3611,7 +3637,7 @@ public:
 															}
 															if (okut == false)
 															{
-																cout << "\n\nYou must use joker in formation!\n\nWould you like to try again? (y/n): ";
+																cout << "\n\nWould you like to try again? (y/n): ";
 																string answer;
 																cin >> answer;
 																if (answer == "n")
@@ -3623,16 +3649,10 @@ public:
 															{
 																// check formation -> replace joker
 																// 
-																// formationsinput -> formation of player
+																// formationsinput -> formation put in by player; formation to be melded
 																// ff: formation where joker was found
 																// tileplayer: tile replacing joker
 																// players[roundpointer] -> player getting the points with formationsinput
-
-																// to do: 
-																// 1. put tileplayer in ff
-																// 2. meld formationsinput with joker
-																// 3. recalculate points for joker + points to player
-																// 4. handle replacement = false;
 
 
 																ok1 = players[roundpointer]->ReplaceJoker(formationsinput, ff, tileplayer);
@@ -3644,6 +3664,7 @@ public:
 																	
 																	cout << "\n\nSuccessfully replaced joker!\n";
 																	Console::pause_console();
+																	return true;
 																	break;
 																	
 																}
@@ -3665,6 +3686,11 @@ public:
 															break;
 														}
 
+														if (ok1 == true)
+														{
+															break;
+														}
+
 													}
 													else
 													{
@@ -3673,9 +3699,21 @@ public:
 												}
 
 											}
+											if (ok1 == true)
+											{
+												break;
+											}
+										}
+										if (ok1 == true)
+										{
+											break;
 										}
 									}
 								}
+							}
+							if (ok1 == true)
+							{
+								break;
 							}
 						}
 					}
@@ -3683,6 +3721,7 @@ public:
 
 			}
 		}
+		return false;
 	}
 
 	void DisplayStats(vector <Player*>& players)
@@ -4053,6 +4092,7 @@ public:
 			if (players[roundpointer]->firstmeld == true && !firstmeldround)
 			{
 				// REPLACE JOKER
+				// 
 				// check if there is any formation with replacable joker
 				bool isformationwithjokeringame = false;
 				for (const auto& p : players)
@@ -4100,8 +4140,59 @@ public:
 				if (players[roundpointer]->playerboard->board_tiles.size() > 3 && isformationwithjokeringame == true) // Check if player has more than 3 tiles on board
 				{
 					AddToFormationGame(players, stackqueue, queue, ct); // allow to add tiles to formations first
-					ReplaceJokerGame(players, stackqueue, queue, ct); // replace joker
+					bool replaced = ReplaceJokerGame(players, stackqueue, queue, ct); // replace joker
+					if (replaced == true)
+					{
+						bool isformationwithjokeringame2 = false;
 
+						for (const auto& p : players)
+						{
+							for (const auto& f : p->formations)
+							{
+								if (f->jokerinformation == true)
+								{
+									for (const auto& t : f->formationtiles)
+									{
+										if (t->type == "joker" && t->getreplacable() == true)
+										{
+											vector<string> col = t->getcolourvector();
+											if (col.size() == 1)
+											{
+												// Formation found here
+
+												for (const auto& tileplayer : players[roundpointer]->playerboard->board_tiles)
+												{
+													if (tileplayer->getcolour() == t->getcolour() && tileplayer->getnumber() == t->getnumber())
+													{
+														isformationwithjokeringame2 = true;
+														break;
+													}
+												}
+											}
+										}
+									}
+									if (isformationwithjokeringame2 == true)
+									{
+										break;
+									}
+								}
+								if (isformationwithjokeringame2 == true)
+								{
+									break;
+								}
+							}
+							if (isformationwithjokeringame2 == true)
+							{
+								break;
+							}
+						}
+
+						if (isformationwithjokeringame2)
+						{
+							bool replaced2 = ReplaceJokerGame(players, stackqueue, queue, ct); // replace joker
+						}
+
+					}
 				}
 
 				// MELD FORMATIONS
@@ -4109,14 +4200,15 @@ public:
 				{
 					MeldGame(players, stackqueue, queue, ct);
 				}
-				// ADD TO FORMATION
+
+				// ADD TILES TO FORMATION
 				if (players[roundpointer]->playerboard->board_tiles.size() >= 2) // Check if player has more than 3 tiles on board
 				{
 					AddToFormationGame(players, stackqueue, queue, ct);
 				}
 			}
 
-			// PLAYER PUTS TILE IN QUEUE -> END OF ROUND
+			// END OF ROUND -> PLAYER PUTS TILE IN QUEUE 
 			// 
 			// 
 			// get player input for tile to discard

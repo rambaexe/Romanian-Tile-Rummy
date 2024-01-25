@@ -1148,13 +1148,23 @@ void testfirstmeldbreakingame()
 	tilez.clear();
 
 	tilez.push_back(new JokerTile(2));
-	tilez.push_back(new NormalTile("blue", 13, 2));
+	tilez.push_back(new NormalTile("black", 13, 2));
 	tilez.push_back(new NormalTile("yellow", 13, 1));
 
 	players[0]->formations.push_back(new Formation(tilez));
+	tilez.clear();
+
 
 	players[0]->formations[2]->melded = true;
 	players[0]->formations[3]->melded = true;
+
+	tilez.push_back(new JokerTile(2));
+	tilez.push_back(new NormalTile("black", 13, 2));
+	tilez.push_back(new NormalTile("yellow", 13, 1));
+
+	players[0]->formations.push_back(new Formation(tilez));
+	tilez.clear();
+	players[1]->formations[0]->melded = true;
 
 
 
