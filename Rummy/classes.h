@@ -2698,11 +2698,6 @@ public:
 		{
 			if (players[roundpointer]->firstmeld == false)
 			{
-				Console::clean_screen();
-				Player::DisplayPlayers(players); cout << endl;
-				cout << "\n\n -------------------------------------------------------------- " << endl;
-				cout << "PERFORMING FIRST MELD" << endl << endl;
-
 				Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
 
 				bool found = false;
@@ -2710,6 +2705,7 @@ public:
 				// meld loop
 				while (true)
 				{
+					found = false;
 					bool exit = false;
 					// create copy of player's tiles
 					vector<Tile*> tilesonboard;
@@ -3094,6 +3090,7 @@ public:
 						}
 						else
 						{
+							cout << "\n\n Operation failed.\n\n";
 							cout << "\n\nWould you like to try the meld again? (y/n): ";
 							string answer;
 							cin >> answer;
@@ -3128,6 +3125,7 @@ public:
 
 				while (true)
 				{
+					found = false;
 					bool exit = false;
 					// create copy of player's tiles
 					vector<Tile*> tilesonboard;
@@ -3164,7 +3162,7 @@ public:
 						vector<Tile*> tilesforformation;
 
 						// get player tile
-						while (true)
+						while (true && tilesonboard.size() > 1)
 						{
 							if (exit)
 							{
@@ -3568,6 +3566,13 @@ public:
 					bool exit = false;
 					while (true)
 					{
+						// no. tile condition
+						if (players[roundpointer]->playerboard->board_tiles.size() < 2)
+						{
+							cout << "\nOperation failed.";
+							Console::pause_console();
+							break;
+						}
 						// get tile
 						while (true && players[roundpointer]->playerboard->board_tiles.size() > 1)
 						{
@@ -4235,6 +4240,16 @@ public:
 					stackqueue.erase(stackqueue.begin());
 					Console::pause_console();
 				}
+				else if (players[roundpointer]->playerboard->board_tiles.size() == 2)
+				{
+					// get tile from stack and add to player
+					cout << "Two Tiles Left: Automatically drawing a tile from the stacks.\n\n";
+					cout << "Tile drawn from stack: "; stackqueue[0]->displayInfo();  cout << endl << endl;
+					players[roundpointer]->playerboard->board_tiles.push_back(stackqueue[0]);
+					players[roundpointer]->playerboard->tilesnoboard++;
+					stackqueue.erase(stackqueue.begin());
+					Console::pause_console();
+				}
 				else		// OTHER ROUNDS
 				{
 					//choice: break / get tile from stacks
@@ -4594,7 +4609,7 @@ public:
 							}
 						}
 
-						if (isformationwithjokeringame2)
+						if (isformationwithjokeringame2 && players[roundpointer]->playerboard->board_tiles.size() > 3)
 						{
 							bool replaced2 = ReplaceJokerGame(players, stackqueue, queue, ct); // replace joker
 						}
