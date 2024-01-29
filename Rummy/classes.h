@@ -3023,7 +3023,7 @@ public:
 						vector<Tile*> tilesforformation;
 
 						// get player tile
-						while (true && tilesonboard.size() > 1)
+						while (true)
 						{
 							if (exit)
 							{
@@ -3930,7 +3930,7 @@ public:
 
 	void DisplayStats(vector <Player*>& players)
 	{
-		Console::clean_screen();
+		// Console::clean_screen();
 
 		for(int i=0; i<players.size(); i++)
 		{
@@ -4494,7 +4494,10 @@ public:
 			}
 			ct++;
 		}
+		
 		DisplayStats(players);
+		Console::clean_screen();
+		 
 		Reset_Match(players, stackqueue, alltiles, queue);
 	}
 };

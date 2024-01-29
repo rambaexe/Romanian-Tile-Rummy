@@ -20,7 +20,7 @@ int main()
 	// FOR TESTING:
 	// testformations();
 	// testfirstmeld();
-	// testpreset();
+	testpreset();
 	
 	//testfirstmeldbreakingame();
 	//rummy_console.pause_console();
