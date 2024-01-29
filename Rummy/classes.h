@@ -1729,6 +1729,7 @@ public:
 				}
 				// add formation to player
 				formations.push_back(f);
+				formations[formations.size() - 1]->melded = true;
 				for (const auto& tile : f->formationtiles)
 				{
 					match_points += tile->finalpoints;
@@ -1821,6 +1822,7 @@ public:
 						}
 						// add formation to player
 						formations.push_back(f);
+						formations[formations.size() - 1]->melded = true;
 						for (const auto& tile : f->formationtiles)
 						{
 							match_points += tile->finalpoints;
@@ -2305,6 +2307,25 @@ public:
 
 									if (tilescounter >= 3)
 									{
+										Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
+										if (formationsinput.size() != 0)
+										{
+											cout << "\nCurrent Formations:\n";
+											for (const auto& f : formationsinput)
+											{
+												f->displayFormationinfo();
+											}
+											cout << endl;
+										}
+										cout << endl;
+										if (tilesforformation.size() != 0)
+										{
+											cout << "\nCurrent Tiles for formation:\n";
+											Tile::DisplayTiles(tilesforformation);
+										}
+										cout << "\nRemaining Tiles:\n";
+										Tile::DisplayTiles(tilesonboard); cout << endl;
+
 										string answ;
 										cout << "\nWould you like to insert any other tiles? (y/n): ";
 										cin >> answ;
@@ -2351,6 +2372,25 @@ public:
 
 							if (formationcounter > 2)
 							{
+								Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
+								if (formationsinput.size() != 0)
+								{
+									cout << "\nCurrent Formations:\n";
+									for (const auto& f : formationsinput)
+									{
+										f->displayFormationinfo();
+									}
+									cout << endl;
+								}
+								cout << endl;
+								if (tilesforformation.size() != 0)
+								{
+									cout << "\nCurrent Tiles for formation:\n";
+									Tile::DisplayTiles(tilesforformation);
+								}
+								cout << "\nRemaining Tiles:\n";
+								Tile::DisplayTiles(tilesonboard); cout << endl;
+
 								string answe;
 								cout << "\nWould you like to meld any other formations? (y/n): ";
 								cin >> answe;
@@ -2520,6 +2560,25 @@ public:
 
 									if (tilescounter >= 3)
 									{
+										Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
+										if (formationsinput.size() != 0)
+										{
+											cout << "\nCurrent Formations:\n";
+											for (const auto& f : formationsinput)
+											{
+												f->displayFormationinfo();
+											}
+											cout << endl;
+										}
+										cout << endl;
+										if (tilesforformation.size() != 0)
+										{
+											cout << "\nCurrent Tiles for formation:\n";
+											Tile::DisplayTiles(tilesforformation);
+										}
+										cout << "\nRemaining Tiles:\n";
+										Tile::DisplayTiles(tilesonboard); cout << endl;
+
 										string answ;
 										cout << "\nWould you like to insert any other tiles? (y/n): ";
 										cin >> answ;
@@ -2565,6 +2624,25 @@ public:
 
 							if (formationcounter > 1)
 							{
+								Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
+								if (formationsinput.size() != 0)
+								{
+									cout << "\nCurrent Formations:\n";
+									for (const auto& f : formationsinput)
+									{
+										f->displayFormationinfo();
+									}
+									cout << endl;
+								}
+								cout << endl;
+								if (tilesforformation.size() != 0)
+								{
+									cout << "\nCurrent Tiles for formation:\n";
+									Tile::DisplayTiles(tilesforformation);
+								}
+								cout << "\nRemaining Tiles:\n";
+								Tile::DisplayTiles(tilesonboard); cout << endl;
+
 								string answe;
 								cout << "\nWould you like to meld any other formations? (y/n): ";
 								cin >> answe;
@@ -2798,6 +2876,27 @@ public:
 
 									if (tilescounter >= 3)
 									{
+										Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
+										if (formationsinput.size() != 0)
+										{
+											cout << "\nCurrent Formations:\n";
+											for (const auto& f : formationsinput)
+											{
+												f->displayFormationinfo();
+											}
+											cout << endl;
+										}
+										cout << endl;
+										if (tilesforformation.size() != 0)
+										{
+											cout << "\nCurrent Tiles for formation:\n";
+											Tile::DisplayTiles(tilesforformation);
+										}
+										cout << "\nRemaining Tiles:\n";
+										Tile::DisplayTiles(tilesonboard); cout << endl;
+										cout << "\Broken Tile:\n";
+										queue[queue.size() - 1]->displayInfo(); cout << endl;
+
 										string answ;
 										cout << "\nWould you like to insert any other tiles? (y/n): ";
 										cin >> answ;
@@ -2854,6 +2953,27 @@ public:
 
 									if (tilescounter >= 3)
 									{
+										Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
+										if (formationsinput.size() != 0)
+										{
+											cout << "\nCurrent Formations:\n";
+											for (const auto& f : formationsinput)
+											{
+												f->displayFormationinfo();
+											}
+											cout << endl;
+										}
+										cout << endl;
+										if (tilesforformation.size() != 0)
+										{
+											cout << "\nCurrent Tiles for formation:\n";
+											Tile::DisplayTiles(tilesforformation);
+										}
+										cout << "\nRemaining Tiles:\n";
+										Tile::DisplayTiles(tilesonboard); cout << endl;
+										cout << "\Broken Tile:\n";
+										queue[queue.size() - 1]->displayInfo(); cout << endl;
+
 										string answ;
 										cout << "\nWould you like to insert any other tiles? (y/n): ";
 										cin >> answ;
@@ -2900,6 +3020,27 @@ public:
 
 						if (formationcounter > 2)
 						{
+							Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
+							if (formationsinput.size() != 0)
+							{
+								cout << "\nCurrent Formations:\n";
+								for (const auto& f : formationsinput)
+								{
+									f->displayFormationinfo();
+								}
+								cout << endl;
+							}
+							cout << endl;
+							if (tilesforformation.size() != 0)
+							{
+								cout << "\nCurrent Tiles for formation:\n";
+								Tile::DisplayTiles(tilesforformation);
+							}
+							cout << "\nRemaining Tiles:\n";
+							Tile::DisplayTiles(tilesonboard); cout << endl;
+							cout << "\Broken Tile:\n";
+							queue[queue.size() - 1]->displayInfo(); cout << endl;
+
 							string answe;
 							cout << "\nWould you like to meld any other formations? (y/n): ";
 							cin >> answe;
@@ -3122,6 +3263,27 @@ public:
 
 											if (tilescounter >= 3)
 											{
+												Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
+												if (formationsinput.size() != 0)
+												{
+													cout << "\nCurrent Formations:\n";
+													for (const auto& f : formationsinput)
+													{
+														f->displayFormationinfo();
+													}
+													cout << endl;
+												}
+												cout << endl;
+												if (tilesforformation.size() != 0)
+												{
+													cout << "\nCurrent Tiles for formation:\n";
+													Tile::DisplayTiles(tilesforformation);
+												}
+												cout << "\nRemaining Tiles:\n";
+												Tile::DisplayTiles(tilesonboard); cout << endl;
+												cout << "\Broken Tile:\n";
+												queue[positionofbr]->displayInfo(); cout << endl;
+
 												string answ;
 												cout << "\nWould you like to insert any other tiles? (y/n): ";
 												cin >> answ;
@@ -3153,6 +3315,27 @@ public:
 
 									if (tilescounter >= 3)
 									{
+										Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
+										if (formationsinput.size() != 0)
+										{
+											cout << "\nCurrent Formations:\n";
+											for (const auto& f : formationsinput)
+											{
+												f->displayFormationinfo();
+											}
+											cout << endl;
+										}
+										cout << endl;
+										if (tilesforformation.size() != 0)
+										{
+											cout << "\nCurrent Tiles for formation:\n";
+											Tile::DisplayTiles(tilesforformation);
+										}
+										cout << "\nRemaining Tiles:\n";
+										Tile::DisplayTiles(tilesonboard); cout << endl;
+										cout << "\Broken Tile:\n";
+										queue[positionofbr]->displayInfo(); cout << endl;
+
 										string answ;
 										cout << "\nWould you like to insert any other tiles? (y/n): ";
 										cin >> answ;
@@ -3209,6 +3392,27 @@ public:
 
 									if (tilescounter >= 3)
 									{
+										Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
+										if (formationsinput.size() != 0)
+										{
+											cout << "\nCurrent Formations:\n";
+											for (const auto& f : formationsinput)
+											{
+												f->displayFormationinfo();
+											}
+											cout << endl;
+										}
+										cout << endl;
+										if (tilesforformation.size() != 0)
+										{
+											cout << "\nCurrent Tiles for formation:\n";
+											Tile::DisplayTiles(tilesforformation);
+										}
+										cout << "\nRemaining Tiles:\n";
+										Tile::DisplayTiles(tilesonboard); cout << endl;
+										cout << "\Broken Tile:\n";
+										queue[positionofbr]->displayInfo(); cout << endl;
+
 										string answ;
 										cout << "\nWould you like to insert any other tiles? (y/n): ";
 										cin >> answ;
@@ -4495,6 +4699,7 @@ public:
 			ct++;
 		}
 		
+		Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
 		DisplayStats(players);
 		Console::clean_screen();
 		 

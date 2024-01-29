@@ -1350,6 +1350,7 @@ void testpreset()
 	tiles.push_back(new NormalTile("blue", 13, 1));
 	tiles.push_back(new NormalTile("red", 13, 1));
 	tiles.push_back(new NormalTile("black", 1, 1));		//ATU
+	tiles.push_back(new JokerTile(1));
 
 	for (const auto& t : tiles)
 	{
@@ -1361,8 +1362,8 @@ void testpreset()
 	// vector <Tile*> stackqueue = game.DivideStacks(stacks, alltiles, players);
 	vector <Tile*> queue;
 
-	queue.push_back(new NormalTile("red", 9, 1));
-	queue.push_back(new NormalTile("black", 2, 1));
+	/*queue.push_back(new NormalTile("red", 9, 1));
+	queue.push_back(new NormalTile("black", 2, 1));*/
 
 	// Player::DisplayPlayers(players);
 	cout << endl;
