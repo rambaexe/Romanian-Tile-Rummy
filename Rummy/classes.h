@@ -246,17 +246,33 @@ public:
 
 	void displayInfo() const override
 	{
-		cout << type;
-		Tile::displayInfo();
-		if (replacingtiles.size() != 0)
+		if (replacable)
 		{
-			cout << "=";
-			for (const auto& tile : replacingtiles)
+			cout << type;
+			Tile::displayInfo();
+			if (replacingtiles.size() != 0)
 			{
-				tile->displayInfo();
+				cout << "=";
+				for (const auto& tile : replacingtiles)
+				{
+					tile->displayInfo();
+				}
 			}
+			cout << " ";
 		}
-		cout << " ";
+		else
+		{
+			if (replacingtiles.size() != 0)
+			{
+				cout << "[j]=";
+				for (const auto& tile : replacingtiles)
+				{
+					tile->displayInfo();
+				}
+			}
+			cout << " ";
+		}
+		
 		//cout << endl;
 	}
 
@@ -1261,6 +1277,10 @@ public:
 				{
 					Formation* form = new Formation(f->formationtiles);
 
+					if (f->jokerinformation == true && currentTile->type == "joker") // not able to add joker in formation where joker is already
+					{
+						return false;
+					}
 					if (f->jokerinformation == true && f->type == "set")
 					{
 						for (const auto& ti : f->formationtiles)
@@ -1316,7 +1336,11 @@ public:
 
 							formleft->formationtiles.insert(formleft->formationtiles.begin(), currentTile);
 							formright->formationtiles.push_back(currentTile);
-
+							if (currentTile->type == "joker")
+							{
+								formleft->jokerinformation = true;
+								formright->jokerinformation = true;
+							}
 
 							if (formleft->checkFormationvalid(formleft->formationtiles))
 							{
@@ -1327,6 +1351,10 @@ public:
 
 								// add Tile to formation
 								f->formationtiles.insert(f->formationtiles.begin(), currentTile);
+								if (currentTile->type == "joker")
+								{
+									f->jokerinformation = true;
+								}
 
 								if (f->checkFormationvalid(f->formationtiles))
 								{
@@ -1342,6 +1370,10 @@ public:
 
 								// add Tile to formation
 								f->formationtiles.push_back(currentTile);
+								if (currentTile->type == "joker")
+								{
+									f->jokerinformation = true;
+								}
 
 								if (f->checkFormationvalid(f->formationtiles))
 								{
@@ -1352,6 +1384,10 @@ public:
 						else if (form->type == "set")
 						{
 							form->formationtiles.push_back(currentTile);
+							if (currentTile->type == "joker")
+							{
+								form->jokerinformation = true;
+							}
 
 							if (form->checkFormationvalid(form->formationtiles))
 							{
@@ -1362,6 +1398,10 @@ public:
 
 								// add Tile to formation
 								f->formationtiles.push_back(currentTile);
+								if (currentTile->type == "joker")
+								{
+									f->jokerinformation = true;
+								}
 
 								if (f->checkFormationvalid(f->formationtiles))
 								{
@@ -1370,6 +1410,102 @@ public:
 							}
 
 						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	// RUN; JOKER GIVEN
+	bool AddToFormation(int ansfid, Tile* currentTile, int playernumberform, vector <Player*>& players, string asss)
+	{
+		// -> FOR RUN ONLY 
+
+
+		// ansfid - id of formation
+		// playernumberform - player number of formation
+		// currentTile - Tile to be added
+		// asss - left or right 
+
+		// check formation of player
+		vector <Tile*> tilez; tilez.push_back(currentTile);
+		if (checkTilesonBoard(tilez))
+		{
+			for (const auto& f : players[playernumberform]->formations)
+			{
+				if (f->formationid == ansfid)
+				{
+					Formation* form = new Formation(f->formationtiles);
+
+					if (f->jokerinformation == true && currentTile->type == "joker") // not able to add joker in formation where joker is already
+					{
+						return false;
+					}
+					
+					if (form->type == "run")
+					{
+						if (asss == "l")
+						{
+							Formation* formleft = new Formation(f->formationtiles);
+							formleft->formationtiles.insert(formleft->formationtiles.begin(), currentTile);
+							if (currentTile->type == "joker")
+							{
+								formleft->jokerinformation = true;
+							}
+							if (formleft->checkFormationvalid(formleft->formationtiles))
+							{
+								match_points += currentTile->finalpoints;
+
+								// remove Tile from player board
+								removetileboard(currentTile);
+
+								// add Tile to formation
+								f->formationtiles.insert(f->formationtiles.begin(), currentTile);
+								if (currentTile->type == "joker")
+								{
+									f->jokerinformation = true;
+								}
+
+								if (f->checkFormationvalid(f->formationtiles))
+								{
+									return true;
+								}
+							}
+						}
+						else if (asss == "r")
+						{
+							Formation* formright = new Formation(f->formationtiles);
+							formright->formationtiles.push_back(currentTile);
+							if (currentTile->type == "joker")
+							{
+								formright->jokerinformation = true;
+							}
+							if (formright->checkFormationvalid(formright->formationtiles))
+							{
+								match_points += currentTile->finalpoints;
+
+								// remove Tile from player board
+								removetileboard(currentTile);
+
+								// add Tile to formation
+								f->formationtiles.push_back(currentTile);
+								if (currentTile->type == "joker")
+								{
+									f->jokerinformation = true;
+								}
+
+								if (f->checkFormationvalid(f->formationtiles))
+								{
+									return true;
+								}
+							}
+						}
+						else
+						{
+							return false;
+						}
+						
 					}
 				}
 			}
@@ -1610,7 +1746,7 @@ public:
 
 			playerboard->addtoBoard(addtoqueue);
 			
-			cout << "\n\n Tiles added to player board:\n";
+			cout << "\n\nTiles added to player board:\n";
 			Tile::DisplayTiles(addtoqueue);
 
 			// erase the tiles from queue
@@ -1980,7 +2116,7 @@ public:
 		cout << "Queue:" << endl;  Tile::DisplayTiles(queue); cout << endl;
 		cout << endl;
 
-		if (players[roundpointer]->firstmeld == true)
+		/*if (players[roundpointer]->firstmeld == true)
 		{
 			cout << "Melded Formations:\n";
 			for (const auto& f : players[roundpointer]->formations)
@@ -1988,9 +2124,48 @@ public:
 				f->displayFormationinfo(); cout << endl;
 			}
 			cout << endl;
-		}
+		}*/
 
 		players[roundpointer]->displayPlayerinfo(); cout << endl;
+	}
+
+	void Displaylessorequal3tiles(vector <Player*>& players)
+	{
+		for (int i=0; i < players.size(); i++)
+		{
+			if (players[i]->playerboard->board_tiles.size() <= 3)
+			{
+				if (players[i]->playerboard->board_tiles.size() == 1)
+				{
+					cout << "PLAYER " << players[i]->playerno << " has " << players[i]->playerboard->board_tiles.size() << " tile left.\n\n";
+				}
+				else
+				{
+					cout << "PLAYER " << players[i]->playerno << " has " << players[i]->playerboard->board_tiles.size() << " tiles left.\n\n";
+				}
+				
+			}
+		}
+		
+	}
+
+	void DisplayPlayerswithFormations(vector <Player*>& players)
+	{
+		for (int i = 0; i < players.size(); i++)
+		{
+			if (players[i]->formations.size() != 0)
+			{
+				cout << "PLAYER " << players[i]->playerno << "\n\n";
+			}
+			for (const auto& f : players[i]->formations)
+			{
+				if (f->valid)
+				{
+					f->displayFormationinfo(); cout << endl;
+				}
+			}
+		}
+
 	}
 
 	void DisplayOnTopScreen(vector <Player*>& players, vector <Tile*>& stackqueue, vector <Tile*>& queue, int ct)
@@ -1999,6 +2174,9 @@ public:
 		Player::DisplayPlayers(players);
 		cout << "\n\nROUND " << (ct-1)/Player::number_of_players + 1<< endl;
 		cout << "-------------------------------------------------------------- " << endl;
+		Displaylessorequal3tiles(players);
+		DisplayPlayerswithFormations(players);
+		cout << "\n\n";
 		Game::displayPlayerInformationinRound(players, stackqueue, queue);
 	}
 
@@ -2775,7 +2953,7 @@ public:
 						}
 						else
 						{
-							cout << "\n\nWould you like to try the first meld again? (y/n): ";
+							cout << "\n\nWould you like to try the meld again? (y/n): ";
 							string answer;
 							cin >> answer;
 							if (answer == "n")
@@ -3158,7 +3336,6 @@ public:
 					{
 						if (f->formationid == x)
 						{
-							Console::pause_console();
 							return i;
 						}
 					}
@@ -3211,11 +3388,11 @@ public:
 								cout << "Not a valid tile. Try again.\n" << endl;
 								Console::pause_console();
 							}
-							else if (currenttype == "joker")
+							/*else if (currenttype == "joker")
 							{
-								cout << "Not a valid tile. Try again.\n" << endl;
+								cout << "not a valid tile. try again.\n" << endl;
 								Console::pause_console();
-							}
+							}*/
 							else // VALID TILE
 							{
 								cout << "Chosen tile: "; currentTile->displayInfo(); cout << endl;
@@ -3238,13 +3415,13 @@ public:
 							Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
 							cout << "Chosen tile: "; currentTile->displayInfo(); cout << endl;
 							cout << "\nPlease choose a formation.\n\n";
-							cout << "\n All formations:\n\n";
+							cout << "\nAll formations:\n\n";
 
 							for (int i = 0; i < players.size(); i++)
 							{
 								if (players[i]->firstmeld)
 								{
-									cout << "Formations of Player " << players[i]->playerno << endl;
+									cout << "\nFormations of Player " << players[i]->playerno << endl<<endl;
 									for (const auto& f : players[i]->formations)
 									{
 										f->displayFormationinfo();
@@ -3295,8 +3472,35 @@ public:
 								// ansfid - id of formation
 								// playernumberform - player number of formation
 								// currentTile - Tile to be added
-								
-								bool allgood = players[roundpointer]->AddToFormation(ansfid, currentTile, playernumberform, players);
+
+								// is tile joker in run??
+								bool allgood = false;
+								if (currentTile->type == "joker")
+								{
+									// if run -> l/r else normal
+									for (const auto& f : players[playernumberform]->formations)
+									{
+										if (f->formationid == ansfid)
+										{
+											if (f->type == "run")
+											{		
+												cout << "\n\Would you like to add the joker to the left or to the right of the formation?\n[l/r]:";
+												string asss;
+												cin >> asss;
+											
+												allgood = players[roundpointer]->AddToFormation(ansfid, currentTile, playernumberform, players, asss);
+											}
+											else
+											{
+												allgood = players[roundpointer]->AddToFormation(ansfid, currentTile, playernumberform, players);
+											}
+										}
+									}
+								}
+								else
+								{
+									allgood = players[roundpointer]->AddToFormation(ansfid, currentTile, playernumberform, players);
+								}
 
 								if (allgood)
 								{
@@ -3779,7 +3983,6 @@ public:
 			}
 			
 		}
-		
 
 		Console::pause_console();
 		Console::clean_screen();
@@ -4001,7 +4204,7 @@ public:
 											else
 											{
 												
-												cout << "Tile not found. Would you like to try again?\n [y/n]: ";
+												cout << "Tile not found. Would you like to try again?\n[y/n]: ";
 												string answ2;
 												cin >> answ2;
 												if (answ2 == "n")
@@ -4250,6 +4453,10 @@ public:
 			if (players[roundpointer]->playerboard->board_tiles.size() == 0 || stackqueue.size() == 0)
 			{
 				players[roundpointer]->match_points += 50;
+				if (firstmeldround == true)
+				{
+					players[roundpointer]->match_points = 500;
+				}
 				if (queue[queue.size() - 1]->type == "joker") // last tile joker - player gets double points 
 				{
 					players[roundpointer]->match_points *= 2;
@@ -4258,7 +4465,7 @@ public:
 				{
 					if (p->firstmeld == false) // -100 for no melds
 					{
-						players[roundpointer]->match_points = -100;
+						p->match_points = -100;
 					}
 					else if (p->playerboard->board_tiles.size() != 0) // get points of tiles still on board; subtract them from match points
 					{

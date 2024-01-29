@@ -1114,6 +1114,7 @@ void testfirstmeldbreakingame()
 	tiles.push_back(new NormalTile("red", 7, 1));
 	tiles.push_back(new NormalTile("yellow", 2, 1));
 	tiles.push_back(new NormalTile("red", 4, 1));
+	tiles.push_back(new NormalTile("blue", 11, 1));
 	tiles.push_back(new JokerTile(1));
 	tiles.push_back(new JokerTile(1));
 
@@ -1121,6 +1122,7 @@ void testfirstmeldbreakingame()
 	players[0]->playerboard->addtoBoard(tiles);
 
 	players[0]->firstmeld = true;
+	
 
 	vector<Tile*> tilez;
 	tilez.push_back(new NormalTile("black", 11, 2));
@@ -1158,14 +1160,6 @@ void testfirstmeldbreakingame()
 	players[0]->formations[2]->melded = true;
 	players[0]->formations[3]->melded = true;
 
-	tilez.push_back(new JokerTile(2));
-	tilez.push_back(new NormalTile("black", 13, 2));
-	tilez.push_back(new NormalTile("yellow", 13, 1));
-
-	players[0]->formations.push_back(new Formation(tilez));
-	tilez.clear();
-	players[1]->formations[0]->melded = true;
-
 
 
 	tiles.clear();
@@ -1180,6 +1174,15 @@ void testfirstmeldbreakingame()
 	
 
 	players[1]->playerboard->addtoBoard(tiles);
+
+	tilez.push_back(new JokerTile(2));
+	tilez.push_back(new NormalTile("black", 13, 2));
+	tilez.push_back(new NormalTile("yellow", 13, 1));
+
+	players[1]->formations.push_back(new Formation(tilez));
+	tilez.clear();
+	players[1]->formations[0]->melded = true;
+	players[1]->firstmeld = true;
 
 	tiles.clear();
 	tiles.push_back(new NormalTile("red", 9, 1));
