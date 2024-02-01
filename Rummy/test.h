@@ -1372,4 +1372,506 @@ void testpreset()
 	game.Match(players, stackqueue, alltiles, queue);
 }
 
+void testpreset_multipleruns()
+{
+	// FIRST RUN ---------------------------------------------------------------------------------------
+	
+	Game game;
+	vector <Tile*> alltiles = Tile::CreateTiles();
+	vector <Player*> players = Player::InitialiseNPlayers(2);
+
+
+	// ONE RUN: 
+	vector <vector <Tile*>> stacks = Tile::CreateStacks(alltiles);
+	Tile::DisplayStacks(stacks);
+	vector <Tile*> stackqueue;
+
+	vector<Tile*> tiles;
+
+
+	//PLAYER 1
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("black", 1, 1));
+	tiles.push_back(new NormalTile("black", 3, 1));
+	tiles.push_back(new NormalTile("black", 4, 1));
+
+	tiles.push_back(new NormalTile("red", 10, 1));
+	tiles.push_back(new NormalTile("blue", 10, 1));
+	tiles.push_back(new NormalTile("black", 10, 1));
+	tiles.push_back(new NormalTile("yellow", 10, 1));
+
+	tiles.push_back(new NormalTile("red", 11, 1));
+	tiles.push_back(new NormalTile("red", 12, 1));
+	tiles.push_back(new NormalTile("red", 13, 1));
+
+	/*tiles.push_back(new NormalTile("blue", 5, 1));
+	tiles.push_back(new NormalTile("blue", 6, 1));
+	tiles.push_back(new NormalTile("blue", 7, 1));*/
+
+	tiles.push_back(new JokerTile(2));
+
+	tiles.push_back(new NormalTile("red", 5, 1));
+
+	players[0]->playerboard->addtoBoard(tiles);
+	tiles.clear();
+
+
+	/*vector<Tile*> tilez;
+	tilez.push_back(new NormalTile("black", 11, 2));
+	tilez.push_back(new NormalTile("black", 12, 2));
+	tilez.push_back(new NormalTile("black", 13, 1));
+
+	players[0]->formations.push_back(new Formation(tilez));
+	tilez.clear();
+
+	tilez.push_back(new NormalTile("red", 13, 2));
+	tilez.push_back(new NormalTile("blue", 13, 2));
+	tilez.push_back(new NormalTile("yellow", 13, 1));
+
+	players[0]->formations.push_back(new Formation(tilez));
+	tilez.clear();
+
+	players[0]->formations[0]->melded = true;
+	players[0]->formations[1]->melded = true;
+
+	tilez.push_back(new JokerTile(2));
+	tilez.push_back(new NormalTile("black", 12, 2));
+	tilez.push_back(new NormalTile("black", 13, 1));
+
+	players[0]->formations.push_back(new Formation(tilez));
+	tilez.clear();
+
+	tilez.push_back(new JokerTile(2));
+	tilez.push_back(new NormalTile("black", 13, 2));
+	tilez.push_back(new NormalTile("yellow", 13, 1));
+
+	players[0]->formations.push_back(new Formation(tilez));
+	tilez.clear();
+
+
+	players[0]->formations[2]->melded = true;
+	players[0]->formations[3]->melded = true;*/
+
+	// PLAYER 2
+	tiles.push_back(new NormalTile("red", 4, 1));
+	tiles.push_back(new NormalTile("red", 6, 1));
+	tiles.push_back(new NormalTile("red", 7, 1));
+	tiles.push_back(new NormalTile("yellow", 11, 1));
+	tiles.push_back(new NormalTile("blue", 11, 1));
+	tiles.push_back(new NormalTile("red", 11, 1));
+	tiles.push_back(new NormalTile("black", 11, 1));
+	tiles.push_back(new NormalTile("yellow", 1, 1));
+	tiles.push_back(new NormalTile("yellow", 2, 1));
+	tiles.push_back(new NormalTile("yellow", 3, 1));
+	tiles.push_back(new JokerTile(2));
+	tiles.push_back(new NormalTile("black", 4, 1));
+	tiles.push_back(new NormalTile("black", 5, 1));
+	tiles.push_back(new NormalTile("black", 6, 1));
+
+
+	players[1]->playerboard->addtoBoard(tiles);
+	tiles.clear();
+
+
+	// STACK QUEUE
+	tiles.clear();
+	tiles.push_back(new NormalTile("black", 2, 2));
+	tiles.push_back(new NormalTile("yellow", 6, 1));
+	tiles.push_back(new NormalTile("yellow", 10, 1));
+	tiles.push_back(new NormalTile("black", 10, 1));
+	tiles.push_back(new NormalTile("black", 10, 2));
+	tiles.push_back(new NormalTile("red", 10, 1));
+	tiles.push_back(new NormalTile("blue", 10, 1));
+	tiles.push_back(new NormalTile("black", 9, 1));
+	tiles.push_back(new NormalTile("black", 11, 2));
+	tiles.push_back(new NormalTile("black", 12, 2));
+	tiles.push_back(new NormalTile("yellow", 13, 1));
+	tiles.push_back(new NormalTile("blue", 13, 1));
+	tiles.push_back(new NormalTile("red", 13, 1));
+	tiles.push_back(new NormalTile("black", 1, 1));		//ATU
+	tiles.push_back(new JokerTile(1));
+
+	for (const auto& t : tiles)
+	{
+		stackqueue.push_back(t);
+	}
+	stackqueue[stackqueue.size() - 1]->atu = true;
+
+
+	// vector <Tile*> stackqueue = game.DivideStacks(stacks, alltiles, players);
+	vector <Tile*> queue;
+
+	/*queue.push_back(new NormalTile("red", 9, 1));
+	queue.push_back(new NormalTile("black", 2, 1));*/
+
+	// Player::DisplayPlayers(players);
+	cout << endl;
+	cout << "Stacks queue:" << endl;
+	Tile::DisplayTiles(stackqueue); cout << endl;
+	game.Match(players, stackqueue, alltiles, queue);
+
+
+	// SECOND RUN ---------------------------------------------------------------------------------------
+
+	
+	alltiles = Tile::CreateTiles();
+	// vector <Player*> players = Player::InitialiseNPlayers(2);
+
+
+	stacks = Tile::CreateStacks(alltiles);
+	Tile::DisplayStacks(stacks);
+	// stackqueue;
+
+	// tiles;
+
+
+	//PLAYER 1
+
+	/*tiles.clear();
+	tiles.push_back(new NormalTile("black", 1, 1));
+	tiles.push_back(new NormalTile("black", 3, 1));
+	tiles.push_back(new NormalTile("blue", 10, 1));
+	tiles.push_back(new NormalTile("black", 10, 1));
+	tiles.push_back(new NormalTile("yellow", 10, 1));
+	tiles.push_back(new NormalTile("blue", 9, 1));
+	tiles.push_back(new NormalTile("black", 9, 1));
+	tiles.push_back(new NormalTile("red", 9, 1));
+	tiles.push_back(new NormalTile("red", 11, 1));
+	tiles.push_back(new NormalTile("red", 12, 1));
+	tiles.push_back(new NormalTile("red", 13, 1));
+	tiles.push_back(new NormalTile("blue", 5, 1));
+	tiles.push_back(new NormalTile("blue", 6, 1));
+	tiles.push_back(new NormalTile("blue", 7, 1));
+	tiles.push_back(new NormalTile("red", 5, 1));*/
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("black", 1, 1));
+	tiles.push_back(new NormalTile("black", 3, 1));
+	tiles.push_back(new NormalTile("black", 4, 1));
+
+	tiles.push_back(new NormalTile("red", 10, 1));
+	tiles.push_back(new NormalTile("blue", 10, 1));
+	tiles.push_back(new NormalTile("black", 10, 1));
+	tiles.push_back(new NormalTile("yellow", 10, 1));
+
+	tiles.push_back(new NormalTile("red", 11, 1));
+	tiles.push_back(new NormalTile("red", 12, 1));
+	tiles.push_back(new NormalTile("red", 13, 1));
+
+	tiles.push_back(new NormalTile("blue", 5, 1));
+	tiles.push_back(new NormalTile("blue", 6, 1));
+	tiles.push_back(new NormalTile("blue", 7, 1));
+
+	tiles.push_back(new JokerTile(2));
+
+	tiles.push_back(new NormalTile("red", 5, 1));
+
+	players[0]->playerboard->addtoBoard(tiles);
+	tiles.clear();
+
+
+	/*vector<Tile*> tilez;
+	tilez.push_back(new NormalTile("black", 11, 2));
+	tilez.push_back(new NormalTile("black", 12, 2));
+	tilez.push_back(new NormalTile("black", 13, 1));
+
+	players[0]->formations.push_back(new Formation(tilez));
+	tilez.clear();
+
+	tilez.push_back(new NormalTile("red", 13, 2));
+	tilez.push_back(new NormalTile("blue", 13, 2));
+	tilez.push_back(new NormalTile("yellow", 13, 1));
+
+	players[0]->formations.push_back(new Formation(tilez));
+	tilez.clear();
+
+	players[0]->formations[0]->melded = true;
+	players[0]->formations[1]->melded = true;
+
+	tilez.push_back(new JokerTile(2));
+	tilez.push_back(new NormalTile("black", 12, 2));
+	tilez.push_back(new NormalTile("black", 13, 1));
+
+	players[0]->formations.push_back(new Formation(tilez));
+	tilez.clear();
+
+	tilez.push_back(new JokerTile(2));
+	tilez.push_back(new NormalTile("black", 13, 2));
+	tilez.push_back(new NormalTile("yellow", 13, 1));
+
+	players[0]->formations.push_back(new Formation(tilez));
+	tilez.clear();
+
+
+	players[0]->formations[2]->melded = true;
+	players[0]->formations[3]->melded = true;*/
+
+	// PLAYER 2
+	tiles.push_back(new NormalTile("red", 4, 1));
+	tiles.push_back(new NormalTile("red", 6, 1));
+	tiles.push_back(new NormalTile("red", 7, 1));
+	tiles.push_back(new NormalTile("yellow", 11, 1));
+	tiles.push_back(new NormalTile("blue", 11, 1));
+	tiles.push_back(new NormalTile("red", 11, 1));
+	tiles.push_back(new NormalTile("black", 11, 1));
+	tiles.push_back(new NormalTile("yellow", 1, 1));
+	tiles.push_back(new NormalTile("yellow", 2, 1));
+	tiles.push_back(new NormalTile("yellow", 3, 1));
+	tiles.push_back(new JokerTile(2));
+	tiles.push_back(new NormalTile("black", 4, 1));
+	tiles.push_back(new NormalTile("black", 5, 1));
+	tiles.push_back(new NormalTile("black", 6, 1));
+
+
+	players[1]->playerboard->addtoBoard(tiles);
+	tiles.clear();
+
+
+	// STACK QUEUE
+	tiles.clear();
+	tiles.push_back(new NormalTile("black", 2, 2));
+	tiles.push_back(new NormalTile("yellow", 6, 1));
+	tiles.push_back(new NormalTile("yellow", 10, 1));
+	tiles.push_back(new NormalTile("black", 10, 1));
+	tiles.push_back(new NormalTile("black", 10, 2));
+	tiles.push_back(new NormalTile("red", 10, 1));
+	tiles.push_back(new NormalTile("blue", 10, 1));
+	tiles.push_back(new NormalTile("black", 9, 1));
+	tiles.push_back(new NormalTile("black", 11, 2));
+	tiles.push_back(new NormalTile("black", 12, 2));
+	tiles.push_back(new NormalTile("yellow", 13, 1));
+	tiles.push_back(new NormalTile("blue", 13, 1));
+	tiles.push_back(new NormalTile("red", 13, 1));
+	tiles.push_back(new NormalTile("black", 1, 1));		//ATU
+	tiles.push_back(new JokerTile(1));
+
+	for (const auto& t : tiles)
+	{
+		stackqueue.push_back(t);
+	}
+	stackqueue[stackqueue.size() - 1]->atu = true;
+
+
+
+	// vector <Tile*> queue;
+
+	/*queue.push_back(new NormalTile("red", 9, 1));
+	queue.push_back(new NormalTile("black", 2, 1));*/
+
+	// Player::DisplayPlayers(players);
+	cout << endl;
+	cout << "Stacks queue:" << endl;
+	Tile::DisplayTiles(stackqueue); cout << endl;
+	game.Match(players, stackqueue, alltiles, queue);
+}
+
+void testpreset_multipleruns2()
+{
+	Console rummy_console;
+	Game game;
+
+	vector <Player*> players = Player::InitialiseNPlayers(2);
+
+	// FIRST RUN ------------------------------------------------------------------------------
+
+	// all tiles
+	vector <Tile*> alltiles = Tile::CreateTiles();
+
+	// stacksqueue and divide to players
+	vector <vector <Tile*>> stacks = Tile::CreateStacks(alltiles);
+	Tile::DisplayStacks(stacks); cout << endl;
+	vector <Tile*> stackqueue = game.DivideStacks(stacks, alltiles, players);
+	cout << "Stacks queue:" << endl;
+	Tile::DisplayTiles(stackqueue); cout << endl;
+
+	//queue
+	vector <Tile*> queue;
+
+	//match
+	game.DisplayOnTopScreen(players, stackqueue, queue, 0);
+	game.Reset_Match(players, stackqueue, alltiles, queue);
+	// game.Match(players, stackqueue, alltiles, queue);
+	rummy_console.pause_console();
+
+	// FIRST RUN ------------------------------------------------------------------------------
+
+
+	//// FIRST RUN ------------------------------------------------------------------------------
+
+	//// all tiles
+	//vector <Tile*> alltiles = Tile::CreateTiles();
+
+	//// stacksqueue and divide to players
+	//vector <vector <Tile*>> stacks = Tile::CreateStacks(alltiles);
+	//Tile::DisplayStacks(stacks); cout << endl;
+	//
+	//vector <Tile*> stackqueue;
+	//// cout << "Stacks queue:" << endl;
+	//// Tile::DisplayTiles(stackqueue); cout << endl;
+
+	//vector<Tile*> tiles;
+
+	////PLAYER 1
+	//tiles.clear();
+	//tiles.push_back(new NormalTile("black", 1, 1));
+	//tiles.push_back(new NormalTile("black", 3, 1));
+	//tiles.push_back(new NormalTile("black", 4, 1));
+
+	//tiles.push_back(new NormalTile("red", 10, 1));
+	//tiles.push_back(new NormalTile("blue", 10, 1));
+	//tiles.push_back(new NormalTile("black", 10, 1));
+	//tiles.push_back(new NormalTile("yellow", 10, 1));
+
+	//tiles.push_back(new NormalTile("red", 11, 1));
+	//tiles.push_back(new NormalTile("red", 12, 1));
+	//tiles.push_back(new NormalTile("red", 13, 1));
+
+	//tiles.push_back(new JokerTile(2));
+
+	//tiles.push_back(new NormalTile("red", 5, 1));
+
+	//players[0]->playerboard->addtoBoard(tiles);
+	//tiles.clear();
+
+	//// PLAYER 2
+	//tiles.push_back(new NormalTile("red", 4, 1));
+	//tiles.push_back(new NormalTile("red", 6, 1));
+	//tiles.push_back(new NormalTile("red", 7, 1));
+	//tiles.push_back(new NormalTile("yellow", 11, 1));
+	//tiles.push_back(new NormalTile("blue", 11, 1));
+	//tiles.push_back(new NormalTile("red", 11, 1));
+	//tiles.push_back(new NormalTile("black", 11, 1));
+	//tiles.push_back(new NormalTile("yellow", 1, 1));
+	//tiles.push_back(new NormalTile("yellow", 2, 1));
+	//tiles.push_back(new NormalTile("yellow", 3, 1));
+	//tiles.push_back(new JokerTile(2));
+	//tiles.push_back(new NormalTile("black", 4, 1));
+	//tiles.push_back(new NormalTile("black", 5, 1));
+	//tiles.push_back(new NormalTile("black", 6, 1));
+
+
+	//players[1]->playerboard->addtoBoard(tiles);
+	//tiles.clear();
+
+	//tiles.clear();
+	//tiles.push_back(new NormalTile("black", 2, 2));
+	//tiles.push_back(new NormalTile("yellow", 6, 1));
+	//tiles.push_back(new NormalTile("yellow", 10, 1));
+	//tiles.push_back(new NormalTile("black", 10, 1));
+	//tiles.push_back(new NormalTile("black", 10, 2));
+	//tiles.push_back(new NormalTile("red", 10, 1));
+	//tiles.push_back(new NormalTile("blue", 10, 1));
+	//tiles.push_back(new NormalTile("black", 9, 1));
+	//tiles.push_back(new NormalTile("black", 11, 2));
+	//tiles.push_back(new NormalTile("black", 12, 2));
+	//tiles.push_back(new NormalTile("yellow", 13, 1));
+	//tiles.push_back(new NormalTile("blue", 13, 1));
+	//tiles.push_back(new NormalTile("red", 13, 1));
+	//tiles.push_back(new NormalTile("black", 1, 1));		//ATU
+	//tiles.push_back(new JokerTile(1));
+
+	//for (const auto& t : tiles)
+	//{
+	//	stackqueue.push_back(t);
+	//}
+	//stackqueue[stackqueue.size() - 1]->atu = true;
+	//tiles.clear();
+
+
+	////queue
+	//vector <Tile*> queue;
+
+	////match
+	//game.Match(players, stackqueue, alltiles, queue);
+	//rummy_console.pause_console();
+
+	// FIRST RUN ------------------------------------------------------------------------------
+
+
+
+
+
+	// MULTIPLE RUNS ------------------------------------------------------------------------------
+
+	// alltiles
+	alltiles = Tile::CreateTiles();
+
+	// stacksqueue and divide to players
+	stacks = Tile::CreateStacks(alltiles);
+	Tile::DisplayStacks(stacks);
+	stackqueue = game.DivideStacks(stacks, alltiles, players);
+	cout << "Stacks queue:" << endl;
+	Tile::DisplayTiles(stackqueue); cout << endl;
+
+	//queue
+
+	//match
+	game.Match(players, stackqueue, alltiles, queue);
+	rummy_console.pause_console();
+
+	// MULTIPLE RUNS ------------------------------------------------------------------------------
+
+
+	
+
+}
+
+void testpreset_multipleruns3()
+{
+	
+	Console rummy_console;
+	Game game;
+
+	vector <Player*> players = Player::InitialiseNPlayers(4);
+
+	// FIRST RUN ------------------------------------------------------------------------------
+
+	// all tiles
+	vector <Tile*> alltiles = Tile::CreateTiles();
+
+	// stacksqueue and divide to players
+	vector <vector <Tile*>> stacks = Tile::CreateStacks(alltiles);
+	Tile::DisplayStacks(stacks); cout << endl;
+	vector <Tile*> stackqueue = game.DivideStacks(stacks, alltiles, players);
+	cout << "Stacks queue:" << endl;
+	Tile::DisplayTiles(stackqueue); cout << endl;
+
+	//queue
+	vector <Tile*> queue;
+
+	//match
+	game.DisplayOnTopScreen(players, stackqueue, queue, 0);
+	game.Reset_Match(players, stackqueue, alltiles, queue);
+	// game.Match(players, stackqueue, alltiles, queue);
+	rummy_console.pause_console();
+
+
+	// MULTIPLE RUNS ------------------------------------------------------------------------------
+
+	// alltiles
+	for (int i = 0; i <2; i++)
+	{
+		alltiles = Tile::CreateTiles();
+
+		// stacksqueue and divide to players
+		stacks = Tile::CreateStacks(alltiles);
+		Tile::DisplayStacks(stacks);
+		stackqueue = game.DivideStacks(stacks, alltiles, players);
+		cout << "Stacks queue:" << endl;
+		Tile::DisplayTiles(stackqueue); cout << endl;
+
+		//queue
+
+		//match
+		game.DisplayOnTopScreen(players, stackqueue, queue, 0);
+		game.Reset_Match(players, stackqueue, alltiles, queue);
+		rummy_console.pause_console();
+	}
+	
+
+	// MULTIPLE RUNS ------------------------------------------------------------------------------
+
+}
+
 #endif

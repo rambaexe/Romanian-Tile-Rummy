@@ -400,12 +400,6 @@ public:
 		}
 	}
 
-	/*void Reset_Board()
-	{
-		board_tiles.clear();
-		tilesnoboard = 0;
-	}*/
-
 	void displayBoardinfo()
 	{
 		cout << tilesnoboard << endl;
@@ -890,7 +884,8 @@ public:
 			}	
 		}
 		cout << endl;
-		cout << "Type: "<< type << "\nPoints: "<< sum <<"\nValid: " << valid << "\nId: " << formationid << "\nMelded: " << melded << "\n";
+		cout << "Type: " << type << ";  Points: " << sum << ";  Valid: " << valid << ";  Id: " << formationid << ";  Melded: " << melded << "\n\n";
+		//cout << "Type: "<< type << "\nPoints: "<< sum <<"\nValid: " << valid << "\nId: " << formationid << "\nMelded: " << melded << "\n";
 	}
 	
 	void setdownpointsFormation()
@@ -1120,7 +1115,7 @@ public:
 	void displayPlayerinfo() const
 	{
 		cout << "PLAYER " << playerno;
-		cout << "     (Points: " << match_points << ")" << endl;
+		cout << "     (Current Points: " << match_points << ")" << "  (Game Points: " << total_points << ")" << endl;
 		playerboard->displayBoardinfo();
 		cout << endl;
 	}
@@ -1132,6 +1127,8 @@ public:
 
 	void ResetPlayer()
 	{
+		playerboard->board_tiles.clear();
+		playerboard->tilesnoboard = 0;
 		playerboard = new Board();
 		match_points = 0;
 		firstmeld = false;
@@ -1150,6 +1147,7 @@ public:
 	static vector <Player*> InitialisePlayers()
 	{
 		int n;
+		number_of_players = 0;
 		while (true)
 		{
 			cout << "Enter number of players: ";
@@ -1166,6 +1164,7 @@ public:
 
 	static vector <Player*> InitialiseNPlayers(int n)
 	{
+		number_of_players = 0;
 		vector <Player*> players;
 		for (int i = 1; i <= n; i++)
 		{
@@ -1947,12 +1946,14 @@ public:
 	int matchmultiplier;
 	int roundpointer;
 	int matchpointer;
+	int gameno;
 
 	Game()
 	{
 		roundpointer = 0;
 		matchpointer = 0;
 		matchmultiplier = 1;
+		gameno = 0;
 	}
 	static bool checkfirstmeld(vector <Formation*> formations)
 	{
@@ -2018,6 +2019,8 @@ public:
 		{
 			for (int i = 0; i < Player::number_of_players; i++)
 			{
+				
+
 				if (pos == stacks.size())
 				{
 					pos = 0;
@@ -2174,11 +2177,11 @@ public:
 	{
 		Console::clean_screen();
 		Player::DisplayPlayers(players);
-		cout << "\n\nROUND " << (ct-1)/Player::number_of_players + 1<< endl;
+		cout << "\n\nGAME "<<gameno<<"; ROUND " << (ct-1)/Player::number_of_players + 1<<endl;
 		cout << "-------------------------------------------------------------- " << endl;
 		Displaylessorequal3tiles(players);
 		DisplayPlayerswithFormations(players);
-		cout << "\n\n";
+		cout << "\n";
 		Game::displayPlayerInformationinRound(players, stackqueue, queue);
 	}
 
@@ -4152,6 +4155,8 @@ public:
 
 	void Match(vector <Player*>& players, vector <Tile*>& stackqueue, vector <Tile*>& alltiles, vector <Tile*>& queue)
 	{
+		gameno++;
+
 		// choose player to start (with 15 tiles):
 		for (const auto& player : players)
 		{
@@ -4185,7 +4190,6 @@ public:
 						stackqueue[stackqueue.size() - 1]->getcolour() == t->getcolour())
 					{
 						player->match_points += 50;
-						Console::pause_console();
 						break;
 					}
 				}
@@ -4193,7 +4197,6 @@ public:
 			
 		}
 
-		Console::pause_console();
 		Console::clean_screen();
 		
 		// START GAME
@@ -4684,7 +4687,7 @@ public:
 				{
 					if (p->firstmeld == false) // -100 for no melds
 					{
-						p->match_points = -100;
+						p->match_points -= 100;
 					}
 					else if (p->playerboard->board_tiles.size() != 0) // get points of tiles still on board; subtract them from match points
 					{
@@ -4719,6 +4722,7 @@ public:
 		Console::clean_screen();
 		 
 		Reset_Match(players, stackqueue, alltiles, queue);
+
 	}
 };
 

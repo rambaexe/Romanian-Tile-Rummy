@@ -14,79 +14,70 @@ using namespace std;
 
 int main()
 {
-	
+	//testpreset_multipleruns3();
+
 	Console rummy_console;
 
-	// FOR TESTING:
-	// testformations();
-	// testfirstmeld();
-	testpreset();
-	
+	// TESTING:
+	// testpreset();
+	//testpreset_multipleruns();
 	//testfirstmeldbreakingame();
 	//rummy_console.pause_console();
 
 
-
 	Game game;
-	vector <Tile*> alltiles = Tile::CreateTiles();
-	//vector <Player*> players = Player::InitialisePlayers();
-	vector <Player*> players = Player::InitialiseNPlayers(2);
-	
-	
-	// ONE RUN: 
-	vector <vector <Tile*>> stacks = Tile::CreateStacks(alltiles);
-	//Tile::DisplayTiles(alltiles);
-	Tile::DisplayStacks(stacks);
-	vector <Tile*> stackqueue = game.DivideStacks(stacks, alltiles, players);
-	vector <Tile*> queue;
 
-	// Player::DisplayPlayers(players);
-	cout << endl;
+	vector <Player*> players = Player::InitialiseNPlayers(4); 
+	//vector <Player*> players = Player::InitialisePlayers();
+
+
+	// FIRST RUN ------------------------------------------------------------------------------
+	
+	// all tiles
+	vector <Tile*> alltiles = Tile::CreateTiles(); 
+
+	// stacksqueue and divide to players
+	vector <vector <Tile*>> stacks = Tile::CreateStacks(alltiles); 
+	Tile::DisplayStacks(stacks); cout << endl; 
+	vector <Tile*> stackqueue = game.DivideStacks(stacks, alltiles, players); 
+	cout << "Stacks queue:" << endl; 
+	Tile::DisplayTiles(stackqueue); cout << endl; 
+
+	//queue
+	vector <Tile*> queue;
+	
+	//match
+	game.Match(players, stackqueue, alltiles, queue); 
+	rummy_console.pause_console(); 
+
+	// FIRST RUN ------------------------------------------------------------------------------
+
+
+
+
+
+	// MULTIPLE RUNS ------------------------------------------------------------------------------
+	
+	// alltiles
+	alltiles = Tile::CreateTiles();
+	
+	// stacksqueue and divide to players
+	stacks = Tile::CreateStacks(alltiles);
+	Tile::DisplayStacks(stacks);
+	stackqueue = game.DivideStacks(stacks, alltiles, players); 
 	cout << "Stacks queue:" << endl;
 	Tile::DisplayTiles(stackqueue); cout << endl;
-	
-	game.Match(players, stackqueue, alltiles, queue);
-	rummy_console.pause_console();
-	//game.Reset_Match(players, stackqueue, alltiles, queue);
+
+	//queue
+
+	//match
+	game.Match(players, stackqueue, alltiles, queue); 
+	rummy_console.pause_console(); 
+
+	// MULTIPLE RUNS ------------------------------------------------------------------------------
+
 
 	
-	
-	// MULTIPLE RUNS: 
-	//for (int i = 1; i <= 6; i++)
-	//{
-	//	vector <vector <Tile*>> stacks = Tile::CreateStacks(alltiles);
-	//	//Tile::DisplayTiles(alltiles);
-	//	Tile::DisplayStacks(stacks);
-	//	vector <Tile*> stackqueue = game.DivideStacks(stacks, alltiles, players);
-
-	//	// Player::DisplayPlayers(players);
-	//	cout << endl;
-	//	cout << "Stacks queue:" << endl;
-	//	Tile::DisplayTiles(stackqueue); cout << endl;
-
-	//	game.Reset_Match(alltiles, players);
-	//}
-
-	//for (int i = 1; i <= 6; i++)
-	//{
-	//	vector <vector <Tile*>> stacks = Tile::CreateStacks(alltiles);
-	//	//Tile::DisplayTiles(alltiles);
-	//	Tile::DisplayStacks(stacks);
-	//	vector <Tile*> stackqueue = game.DivideStacks(stacks, alltiles, players);
-
-	//	// Player::DisplayPlayers(players);
-	//	cout << endl;
-	//	cout << "Stacks queue:" << endl;
-	//	Tile::DisplayTiles(stackqueue); cout << endl;
-
-	//	vector <Tile*> queue;
-
-	//	game.Match(players, stackqueue, alltiles, queue);
-
-	//	game.Reset_Match(alltiles, players);
-	//}
-	
-	// rummy_console.pause_console();
 	return 0;
 }
 
