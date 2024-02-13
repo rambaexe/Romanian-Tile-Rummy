@@ -14,7 +14,7 @@ using namespace std;
 
 int main()
 {
-	//testpreset_multipleruns3();
+	
 
 	Console rummy_console;
 
@@ -22,12 +22,13 @@ int main()
 	// testpreset();
 	//testpreset_multipleruns();
 	//testfirstmeldbreakingame();
+	//testpreset_multipleruns3();
 	//rummy_console.pause_console();
 
 
 	Game game;
 
-	vector <Player*> players = Player::InitialiseNPlayers(4); 
+	vector <Player*> players = Player::InitialiseNPlayerBots(4); 
 	//vector <Player*> players = Player::InitialisePlayers();
 
 
@@ -41,7 +42,7 @@ int main()
 	Tile::DisplayStacks(stacks); cout << endl; 
 	vector <Tile*> stackqueue = game.DivideStacks(stacks, alltiles, players); 
 	cout << "Stacks queue:" << endl; 
-	Tile::DisplayTiles(stackqueue); cout << endl; 
+	Tile::DisplayTiles(stackqueue); cout << endl; Console::pause_console();
 
 	//queue
 	vector <Tile*> queue;

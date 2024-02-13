@@ -8,7 +8,6 @@
 #include <random>
 #include <map>
 
-
 #include "console_h.h"
 
 using namespace std;
@@ -169,6 +168,29 @@ public:
 	void virtual setreplacable(bool val) {}
 
 	bool virtual getreplacable() { return false; }
+	
+	int virtual getcolourid() { return 0; }
+
+	bool static CheckSameTile(Tile* a, Tile* b)
+	{
+		if (a->type == "joker" || b->type == "joker")
+		{
+			if (a->type == b->type)
+			{
+				return true;
+			}
+		}
+		else if(a->type == "normal" && b->type == "normal")
+		{
+			if (a->getcolour() == b->getcolour() && a->getnumber() == b->getnumber())
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	void static DeepCopy(vector<Tile*> tiles, vector <Tile*>& copyvector);
 };
 
 class NormalTile : public Tile
@@ -230,6 +252,27 @@ public:
 	string getcolour() override
 	{
 		return colour;
+	}
+
+	int getcolourid() override
+	{
+		if (colour == "red")
+		{
+			return 3;
+		}
+		if (colour == "blue")
+		{
+			return 4;
+		}
+		if (colour == "black")
+		{
+			return 5;
+		}
+		if (colour == "yellow")
+		{
+			return 6;
+		}
+		return 0;
 	}
 };
 
@@ -357,6 +400,8 @@ public:
 	{
 		return replacable; 
 	}
+
+	int  getcolourid() override { return -1; }
 	
 };
 
@@ -378,6 +423,21 @@ vector<Tile*> Tile::CreateTiles()
 		}
 	}
 	return tiles;
+}
+
+void Tile::DeepCopy(vector<Tile*> tiles, vector <Tile*>& copyvector)
+{
+	for (const auto& tile : tiles)
+	{
+		if (tile->type == "joker")
+		{
+			copyvector.push_back(new JokerTile(1));
+		}
+		else if (tile->type == "normal")
+		{
+			copyvector.push_back(new NormalTile(tile->getcolour(), tile->getnumber(), 1));
+		}
+	}
 }
 
 
@@ -924,6 +984,15 @@ public:
 		}
 	}
 
+	void static DisplayFormations(vector<Formation*> formations)
+	{
+		for (const auto& f : formations)
+		{
+			cout << endl;
+			f->displayFormationinfo();
+		}
+	}
+
 	// check if formation is valid
 	bool checkFormationvalid(vector <Tile*> tilesfor)
 	{
@@ -1101,6 +1170,7 @@ public:
 	int total_points;
 	int playerno;
 	bool firstmeld;
+	string playertype;
 	vector<Formation*> formations;
 
 	Player()
@@ -1111,10 +1181,15 @@ public:
 		match_points = 0;
 		total_points = 0;
 		firstmeld = false;
+		playertype = "player";
 	}
 
 	void displayPlayerinfo() const
 	{
+		if (playertype == "bot") 
+		{ 
+			cout << "BOT"; 
+		}
 		cout << "PLAYER " << playerno;
 		cout << "     (Current Points: " << match_points << ")" << "  (Game Points: " << total_points << ")" << endl;
 		playerboard->displayBoardinfo();
@@ -1173,6 +1248,8 @@ public:
 		}
 		return players;
 	}
+
+	static vector <Player*> InitialiseNPlayerBots(int n);
 
 	static Player* get_Player(int no, vector<Player*> players)
 	{
@@ -1937,9 +2014,25 @@ public:
 		}
 		return false;
 	}
+
+	void virtual linktoPlayerbot() {}
 };
 
+#include "playerbot.h"
+
 int Player::number_of_players = 0;
+
+vector <Player*> Player::InitialiseNPlayerBots(int n)
+{
+	number_of_players = 0;
+	vector <Player*> players;
+	for (int i = 1; i <= n; i++)
+	{
+		players.push_back(new PlayerBot());
+	}
+	return players;
+}
+
 
 class Game
 {
@@ -4201,18 +4294,347 @@ public:
 		Console::clean_screen();
 		
 		// START GAME
-		//
-		//
-		string currenttype, currentcolour;
-		int currentnumber;
-		Tile* currentTile = new Tile("", 0);
 
-		
+		// INITIAL BOTS MEMO TABLE: NO FIRST MELD, NO BREAK
+		for (Player* player : players)
+		{
+			PlayerBot* bot = dynamic_cast<PlayerBot*>(player);
+			if (bot) {
+				bot->Memo_Table_FirstMeld_NoBreak(players); 
+			}
+		}
+		Console::pause_console();
 			
 		// ROUNDS
+		// current player: players[roundpointer] or bot 
 		int ct = 1; // round counter 
 		while(true)
 		{
+			// COMPUTER BOT
+			PlayerBot* bot = dynamic_cast<PlayerBot*>(players[roundpointer]);
+			/*if (bot)
+			{
+				string currenttype, currentcolour;
+				int currentnumber;
+				Tile* currentTile = new Tile("", 0);
+
+				bool breakfromqueue = false;
+				int positionbrokentile = -1;
+				bool foundtiletobreak = false;
+
+				// DRAW TILE OR BREAK FROM QUEUE
+				Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
+
+				if (ct != 1) // FIRST ROUND; FIRST PLAYER DOES NOT DRAW TILE
+				{
+					if (ct <= players[roundpointer]->number_of_players)  // FIRST ROUND; EVERYONE DRAWS BESIDES FIRST PLAYER
+					{
+						// get tile from stack and add to player
+						cout << "First Round: Automatically drawing a tile from the stacks.\n\n";
+						cout << "Tile drawn from stack: "; stackqueue[0]->displayInfo();  cout << endl << endl;
+						players[roundpointer]->playerboard->board_tiles.push_back(stackqueue[0]);
+						players[roundpointer]->playerboard->tilesnoboard++;
+						stackqueue.erase(stackqueue.begin());
+						Console::pause_console();
+
+						bot->Memo_Table_FirstMeld_NoBreak(players);
+					}
+					else if (players[roundpointer]->playerboard->board_tiles.size() == 1)
+					{
+						// get tile from stack and add to player
+						cout << "One Tile Left: Automatically drawing a tile from the stacks.\n\n";
+						cout << "Tile drawn from stack: "; stackqueue[0]->displayInfo();  cout << endl << endl;
+						players[roundpointer]->playerboard->board_tiles.push_back(stackqueue[0]);
+						players[roundpointer]->playerboard->tilesnoboard++;
+						stackqueue.erase(stackqueue.begin());
+						Console::pause_console();
+					}
+					else if (players[roundpointer]->playerboard->board_tiles.size() == 2)
+					{
+						// get tile from stack and add to player
+						cout << "Two Tiles Left: Automatically drawing a tile from the stacks.\n\n";
+						cout << "Tile drawn from stack: "; stackqueue[0]->displayInfo();  cout << endl << endl;
+						players[roundpointer]->playerboard->board_tiles.push_back(stackqueue[0]);
+						players[roundpointer]->playerboard->tilesnoboard++;
+						stackqueue.erase(stackqueue.begin());
+						Console::pause_console();
+					}
+					else		// OTHER ROUNDS
+					{
+						//choice: break / get tile from stacks
+
+						while (true)
+						{
+							Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
+							cout << "\nWould you like to draw a tile from the stack [Option 1] or break a tile from the queue [Option 2]? \n[1/2]: ";
+							int ans = 0;
+							string ansstring;
+							cin >> ansstring;
+							try
+							{
+								ans = stoi(ansstring);
+							}
+							catch (exception& err)
+							{
+								cout << "\nError occured. You must insert a number." << endl;
+								Console::pause_console();
+							}
+							if (ans != 0)
+							{
+								if (ans == 1)
+								{
+									cout << "\nOption 1: Tile drawn from stack: "; stackqueue[0]->displayInfo();  cout << endl << endl;
+									players[roundpointer]->playerboard->board_tiles.push_back(stackqueue[0]);
+									players[roundpointer]->playerboard->tilesnoboard++;
+									stackqueue.erase(stackqueue.begin());
+									breakfromqueue = false;
+									Console::pause_console();
+									break;
+								}
+								else if (ans == 2)
+								{
+									breakfromqueue = true;
+
+									if (players[roundpointer]->firstmeld == true) // First meld completed
+									{
+										while (true)
+										{
+											// insert tile
+											// find in queue + special case
+											// save position 
+
+											foundtiletobreak = false;
+											positionbrokentile = -1;
+
+											Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
+											cout << "\nChoose tile to break." << endl << endl;
+
+											tie(currenttype, currentnumber, currentcolour) = players[roundpointer]->getPlayerInputTile();
+
+											if (currenttype == "exit")
+											{
+												cout << "Exiting this process. \n" << endl;
+												Console::pause_console();
+												break;
+											}
+											else if (currenttype == "notvalid")
+											{
+												cout << "Not a valid tile. Try again.\n" << endl;
+												Console::pause_console();
+											}
+											else
+											{
+												if (players[roundpointer]->playerboard->board_tiles.size() == 2)
+												{
+													for (int i = 1; i < queue.size() - 1; i++) // start at 1; do not allow first tile to be picked
+													{
+														if (currenttype == queue[i]->type && currentnumber == queue[i]->getnumber() && currentcolour == queue[i]->getcolour())
+														{
+															if (foundtiletobreak == false)
+															{
+																positionbrokentile = i;
+																foundtiletobreak = true;
+																cout << "\nInserted tile found at position " << i << ".\n\n";
+																cout << "Tile: ";  queue[i]->displayInfo(); cout << "\n";
+															}
+															else
+															{
+																// special case
+																while (true)
+																{
+																	cout << "Same tile found in queue again. Position:" << i << ".\n\n";
+																	cout << "\nWould you like to break the first tile [Option 1] or the second tile [Option 2]? \n[1/2]: ";
+																	int ans2 = 0;
+																	string ansstring2;
+																	cin >> ansstring2;
+																	try
+																	{
+																		ans2 = stoi(ansstring2);
+																	}
+																	catch (exception& err)
+																	{
+																		cout << "\nError occured. You must insert a number." << endl;
+																		Console::pause_console();
+																	}
+																	if (ans == 1)
+																	{
+																		// do not change the tile
+																		break;
+																	}
+																	else if (ans == 2)
+																	{
+																		// change 
+																		positionbrokentile = i;
+																		break;
+																	}
+																	cout << "\nError occured. Please try again." << endl;
+																}
+															}
+														}
+
+													}
+												}
+												else
+												{
+													for (int i = 1; i < queue.size(); i++) // start at 1; do not allow first tile to be picked
+													{
+														if (currenttype == queue[i]->type && currentnumber == queue[i]->getnumber() && currentcolour == queue[i]->getcolour())
+														{
+															if (foundtiletobreak == false)
+															{
+																positionbrokentile = i;
+																foundtiletobreak = true;
+																cout << "\nInserted tile found at position " << i << ".\n\n";
+																cout << "Tile: ";  queue[i]->displayInfo(); cout << "\n";
+															}
+															else
+															{
+																// special case
+																while (true)
+																{
+																	cout << "Same tile found in queue again. Position:" << i << ".\n\n";
+																	cout << "\nWould you like to break the first tile [Option 1] or the second tile [Option 2]? \n[1/2]: ";
+																	int ans2 = 0;
+																	string ansstring2;
+																	cin >> ansstring2;
+																	try
+																	{
+																		ans2 = stoi(ansstring2);
+																	}
+																	catch (exception& err)
+																	{
+																		cout << "\nError occured. You must insert a number." << endl;
+																		Console::pause_console();
+																	}
+																	if (ans == 1)
+																	{
+																		// do not change the tile
+																		break;
+																	}
+																	else if (ans == 2)
+																	{
+																		// change 
+																		positionbrokentile = i;
+																		break;
+																	}
+																	cout << "\nError occured. Please try again." << endl;
+																}
+															}
+														}
+
+													}
+												}
+
+												if (foundtiletobreak)
+												{
+													break;
+												}
+												else
+												{
+
+													cout << "Tile not found. Would you like to try again?\n[y/n]: ";
+													string answ2;
+													cin >> answ2;
+													if (answ2 == "n")
+													{
+														break;
+													}
+												}
+
+											}
+										}
+									}
+									else // First meld not completed
+									{
+										cout << "\nOption 2: Last tile from queue broken : "; queue[queue.size() - 1]->displayInfo();  cout << endl << endl;
+										Console::pause_console();
+										break;
+									}
+								}
+								else
+								{
+									continue;
+								}
+								break;
+							}
+						}
+
+					}
+				}
+				Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
+
+
+				// BROKEN FROM QUEUE OR FIRST MELD
+				bool firstmeldround = false;
+				firstmeldround = false;
+
+
+				// END OF ROUND -> PLAYER PUTS TILE IN QUEUE 
+				// PLACEHOLDER CODE
+				
+				cout << "\nChosen tile: ";  bot->memotable_firstmeld[0]->other_tiles[0]->displayInfo(); cout << endl << endl;
+				Console::pause_console();
+				// remove tile from player and put in queue
+				
+				bot->removetileboard(bot->memotable_firstmeld[0]->other_tiles[0]);
+				queue.push_back(bot->memotable_firstmeld[0]->other_tiles[0]);
+				
+				queue[queue.size() - 1]->move = true;
+
+
+				queue[0]->move = false;			// cannot pick the first tile
+
+				// END OF GAME
+				if (players[roundpointer]->playerboard->board_tiles.size() == 0 || stackqueue.size() == 0)
+				{
+					players[roundpointer]->match_points += 50;
+					if (firstmeldround == true)
+					{
+						players[roundpointer]->match_points = 500;
+					}
+					if (queue[queue.size() - 1]->type == "joker") // last tile joker - player gets double points 
+					{
+						players[roundpointer]->match_points *= 2;
+					}
+					for (const auto& p : players)
+					{
+						if (p->firstmeld == false) // -100 for no melds
+						{
+							p->match_points -= 100;
+						}
+						else if (p->playerboard->board_tiles.size() != 0) // get points of tiles still on board; subtract them from match points
+						{
+							for (const auto& t : p->playerboard->board_tiles)
+							{
+								p->match_points -= t->finalpoints;
+							}
+						}
+					}
+					for (const auto& p : players)
+					{
+						p->match_points *= matchmultiplier;
+					}
+					break;
+				}
+
+
+				// GO TO NEXT PLAYER
+				if (roundpointer == Player::number_of_players - 1)
+				{
+					roundpointer = 0;
+				}
+				else
+				{
+					roundpointer++;
+				}
+				ct++;
+				continue;
+			}
+			
+			*/
+
+			string currenttype, currentcolour;
+			int currentnumber;
 			Tile* currentTile = new Tile("", 0);
 
 			bool breakfromqueue = false;

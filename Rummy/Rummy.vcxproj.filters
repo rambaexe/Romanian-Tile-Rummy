@@ -32,6 +32,9 @@
     <ClInclude Include="test.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="playerbot.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
