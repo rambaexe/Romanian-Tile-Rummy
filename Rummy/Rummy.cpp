@@ -57,25 +57,25 @@ int main()
 
 
 
-	// MULTIPLE RUNS ------------------------------------------------------------------------------
-	
-	// alltiles
-	alltiles = Tile::CreateTiles();
-	
-	// stacksqueue and divide to players
-	stacks = Tile::CreateStacks(alltiles);
-	Tile::DisplayStacks(stacks);
-	stackqueue = game.DivideStacks(stacks, alltiles, players); 
-	cout << "Stacks queue:" << endl;
-	Tile::DisplayTiles(stackqueue); cout << endl;
+	//// MULTIPLE RUNS ------------------------------------------------------------------------------
+	//
+	//// alltiles
+	//alltiles = Tile::CreateTiles();
+	//
+	//// stacksqueue and divide to players
+	//stacks = Tile::CreateStacks(alltiles);
+	//Tile::DisplayStacks(stacks);
+	//stackqueue = game.DivideStacks(stacks, alltiles, players); 
+	//cout << "Stacks queue:" << endl;
+	//Tile::DisplayTiles(stackqueue); cout << endl;
 
-	//queue
+	////queue
 
-	//match
-	game.Match(players, stackqueue, alltiles, queue); 
-	rummy_console.pause_console(); 
+	////match
+	//game.Match(players, stackqueue, alltiles, queue); 
+	//rummy_console.pause_console(); 
 
-	// MULTIPLE RUNS ------------------------------------------------------------------------------
+	//// MULTIPLE RUNS ------------------------------------------------------------------------------
 
 
 	

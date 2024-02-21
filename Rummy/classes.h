@@ -25,6 +25,8 @@ const int maxtilesonboard = 15;
 const int min_no_points_first_meld = 45;
 
 
+
+
 class Tile
 {
 public:
@@ -502,6 +504,8 @@ public:
 	//Player* fplayer;
 	static int formationno;
 	int formationid;
+	static std::vector<Formation*> allInstances;
+
 
 	Formation(vector<Tile*> tilesforformation, string formationtype)
 	{
@@ -556,6 +560,7 @@ public:
 		{
 			setdownpointsFormation();
 		}
+		allInstances.push_back(this);
 	}
 
 	Formation(vector<Tile*> tilesforformation)
@@ -651,6 +656,7 @@ public:
 		{
 			setdownpointsFormation();
 		}
+		allInstances.push_back(this);
 	}
 
 	bool checkRun(vector<Tile*>& tilestocheck)
@@ -1175,10 +1181,19 @@ public:
 		}
 	}
 
-
+	static void ResetFormations()
+	{
+		formationno = 0;
+		for (auto& f : allInstances)
+		{
+			delete f;
+		}
+	}
 };
 
 int Formation::formationno = 0;
+std::vector<Formation*> Formation::allInstances;
+
 
 class Player
 {
@@ -1699,7 +1714,7 @@ public:
 		}
 		return false;
 	}
-
+	
 	void FirstMeld(vector<Formation*> formationstomeld)
 	{
 		if (!firstmeld)
@@ -1740,11 +1755,16 @@ public:
 		}
 	}
 
-	void Meld(vector<Formation*> formationstomeld)
+	bool Meld(vector<Formation*> formationstomeld)
 	{
 		if (firstmeld)
 		{
-			// check if tiles are on board (or if broken from queue)
+			// check if tiles are on board 
+			vector<Tile*> aux_playerboard; aux_playerboard.clear();
+			for (const auto& tile : playerboard->board_tiles)
+			{
+				aux_playerboard.push_back(tile);
+			}
 			bool cont = true;
 			for (const auto& form : formationstomeld)
 			{
@@ -1752,8 +1772,21 @@ public:
 				{
 					cont = false;
 				}
+				else
+				{
+					for (const auto& tile : form->formationtiles)
+					{
+						for (int i = 0; i < aux_playerboard.size(); i++)
+						{
+							if (Tile::CheckSameTile(tile, aux_playerboard[i]))
+							{
+								aux_playerboard.erase(aux_playerboard.begin() + 1);
+							}
+						}
+					}
+				}
 			}
-			if (cont)
+			if (cont && aux_playerboard.size()>=1)
 			{
 				// add final points to player and remove tiles from board
 				for (const auto& f : formationstomeld)
@@ -1772,22 +1805,19 @@ public:
 						removetileboard(tile);
 					}
 				}
+				return true;
 			}
-
 		}
+		return false;
 	}
 
 	bool MeldwithBreak(vector<Formation*> formationstomeld, Tile* tilefromqueue, vector<Tile*>& givenqueue, int positionofbr)
 	{
-		// checks
-		// 1. not first tile 
-		// 2. not 2 cards in player and last card
-
 		// get players the cards from the queue
-
 		vector<vector<Tile*>> tilestocheckonboard;
 
 		// check if broken from queue correct
+		bool cont1 = false;
 		if (tilefromqueue->move == true && Tile::CheckSameTile(tilefromqueue, givenqueue[positionofbr]))
 		{
 			for (const auto& form : formationstomeld)
@@ -1799,9 +1829,10 @@ public:
 				}
 				for (int i = 0; i < tilesin.size(); i++)
 				{
-					if (Tile::CheckSameTile(tilefromqueue, tilesin[i]))
+					if (Tile::CheckSameTile(tilefromqueue, tilesin[i])) // find tile from queue in formations
 					{
 						tilesin.erase(tilesin.begin() + i);
+						cont1 = true;
 						break;
 					}
 				}
@@ -1809,6 +1840,12 @@ public:
 			}
 		}
 
+		// check tiles on board
+		vector<Tile*> aux_playerboard; aux_playerboard.clear();
+		for (const auto& tile : playerboard->board_tiles)
+		{
+			aux_playerboard.push_back(tile);
+		}
 		bool cont2 = true;
 		for (const auto& t : tilestocheckonboard)
 		{
@@ -1816,8 +1853,21 @@ public:
 			{
 				cont2 = false;
 			}
+			else 
+			{
+				for (const auto& tile : t)
+				{
+					for (int i = 0; i < aux_playerboard.size(); i++)
+					{
+						if (Tile::CheckSameTile(tile, aux_playerboard[i]))
+						{
+							aux_playerboard.erase(aux_playerboard.begin()+1);
+						}
+					}
+				}
+			}
 		}
-		if (cont2)
+		if (cont2 && cont1 && aux_playerboard.size()>=1)
 		{
 			// add final points to player and remove tiles from board
 			for (const auto& f : formationstomeld)
@@ -1869,6 +1919,7 @@ public:
 				vector<vector<Tile*>> tilestocheckonboard;
 
 				// check if broken from queue correct
+				bool cont1 = false;
 				if (tilefromqueue->move == true && Tile::CheckSameTile(tilefromqueue, givenqueue[givenqueue.size() - 1]))
 				{
 					bool ok = false;
@@ -1885,6 +1936,7 @@ public:
 							{
 								tilesin.erase(tilesin.begin() + i);
 								ok = true;
+								cont1 = true;
 								break;
 							}
 						}
@@ -1904,7 +1956,7 @@ public:
 						cont2 = false;
 					}
 				}
-				if (cont2)
+				if (cont2 && cont1)
 				{
 					firstmeld = true;
 
@@ -1978,7 +2030,7 @@ public:
 			}
 
 		}
-		if (cont)
+		if (cont && playerboard->board_tiles.size()>3)
 		{
 			// replace joker in ff formation
 			for (int i = 0; i < ff->formationtiles.size(); i++)
@@ -2202,7 +2254,14 @@ public:
 		{
 			player->total_points += player->match_points;
 			player->ResetPlayer();
+			PlayerBot* bot = dynamic_cast<PlayerBot*>(player);
+			if (bot)
+			{
+				bot->ResetBot();
+			}
 		}
+
+		// Formation::ResetFormations();
 	}
 
 	static Tile* CheckTile(string ptype, int pnumber, string pcolour, vector<Tile*> playertiles)
@@ -3799,7 +3858,7 @@ public:
 							else // a valid formation
 							{
 								// ansfid - id of formation
-								// playernumberform - player number of formation
+								// playernumberform - player number for formation
 								// currentTile - Tile to be added
 
 								// is tile joker in run??
@@ -4346,6 +4405,7 @@ public:
 				bool breakfromqueue = false;
 				int positionbrokentile = -1;
 				bool foundtiletobreak = false;
+				bool firstmeldround = false;
 
 				// DRAW TILE OR BREAK FROM QUEUE
 				Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
@@ -4420,6 +4480,10 @@ public:
 						else
 						{
 							breakfromqueue = bot->Memo_Table_FirstMeld_withBreak(players, queue);
+							if (breakfromqueue == true)
+							{
+								firstmeldround = true;
+							}
 						}
 
 						if (breakfromqueue == false)
@@ -4440,8 +4504,6 @@ public:
 
 
 				// BROKEN FROM QUEUE OR FIRST MELD
-				bool firstmeldround = false;
-
 				if (!breakfromqueue)
 				{
 					if (bot->firstmeld == false && ct > players[roundpointer]->number_of_players)
