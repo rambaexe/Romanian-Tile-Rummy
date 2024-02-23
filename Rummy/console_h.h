@@ -29,7 +29,7 @@ public:
     static void pause_console()
     {
         cout << endl;
-        system("pause");
+        //system("pause");
     }
 
     static void setConsoleColour(int k)

@@ -1,7 +1,7 @@
 #ifndef playerbot
 #define playerbot
 
-# define counterlimit_meldbreak 16
+# define counterlimit_meldbreak_defensive 8
 #include <unordered_map>
 #include <vector>
 #include <algorithm>
@@ -10,6 +10,8 @@ struct dictionary_entry {
 	int points;
 	Tile* tile;
 };
+
+
 
 class MemoTableRow
 {
@@ -106,6 +108,7 @@ public:
 
 	vector<Formation*> formations_firstmeld;
 	vector<Formation*> formations_meld;
+	string bottype; // aggressive, defensive
 
 
 	Tile* tile_to_discard;
@@ -118,16 +121,48 @@ public:
 		playertype = "bot";
 	}
 
-	void ResetBot()
+	PlayerBot(string given_type) :Player()
 	{
 		tile_to_discard = nullptr;
 		tile_to_break = nullptr;
-		memotable_initial.clear();
-		memotable_firstmeld.clear();
-		memotable_firstmeld_withbreak.clear();
-		memotable_meld.clear();
-		formations_firstmeld.clear();
-		formations_meld.clear();
+		playertype = "bot";
+		bottype = given_type;
+	}
+
+	void displayPlayerinfo() const override
+	{
+		if (playertype == "bot")
+		{
+			cout << "BOT";
+			if (bottype.size())
+			{
+				cout << " (" << bottype.substr(0, 3) << ") ";
+			}
+		}
+		cout << "PLAYER " << playerno;
+		cout << "     (Current Points: " << match_points << ")" << "  (Game Points: " << total_points << ")" << endl;
+		playerboard->displayBoardinfo();
+		cout << endl;
+	}
+
+	void displayPlayername() const override
+	{
+		if (playertype == "bot")
+		{
+			cout << "BOT";
+			if (bottype.size())
+			{
+				cout << " (" << bottype.substr(0, 3) << ") ";
+			}
+		}
+		cout << "PLAYER " << playerno;
+	}
+
+	void ResetPlayerBot()
+	{
+		tile_to_discard = nullptr;
+		tile_to_break = nullptr;
+		bottype.clear();
 	}
 
 	void Removetilefromboard(Tile* t)
@@ -856,6 +891,131 @@ public:
 		}
 	}
 
+	void Sort_Dictionary_Endgame(vector<dictionary_entry>& aux_dictionary)
+	{
+		// sort dictionary by final points (descending) 
+		// > -> ascending; < -> descending
+		for (int i = 0; i < aux_dictionary.size() - 1; i++)
+		{
+			for (int j = i + 1; j < aux_dictionary.size(); j++)
+			{
+				if (aux_dictionary[i].tile->finalpoints < aux_dictionary[j].tile->finalpoints)
+				{
+					swap(aux_dictionary[i], aux_dictionary[j]);
+				}
+				else if (aux_dictionary[i].tile->finalpoints == aux_dictionary[j].tile->finalpoints)
+				{
+					if (aux_dictionary[i].points > aux_dictionary[j].points)
+					{
+						swap(aux_dictionary[i], aux_dictionary[j]);
+					}
+				}
+			}
+		}
+		for (int i = 0; i < aux_dictionary.size(); i++)
+		{
+			aux_dictionary[i].tile->displayInfo();
+			cout << " " << aux_dictionary[i].points << " " << aux_dictionary[i].tile->finalpoints << endl;
+		}
+	}
+
+	void Sort_Dictionary_YourEndgame(vector<dictionary_entry>& aux_dictionary)
+	{
+		// sort dictionary by final points (descending) 
+		// > -> ascending; < -> descending
+		int ok_to_continue = true;
+
+		for (int i = 0; i < aux_dictionary.size() - 1; i++)
+		{
+			for (int j = i + 1; j < aux_dictionary.size(); j++)
+			{
+				if (Tile::CheckSameTile(aux_dictionary[i].tile, aux_dictionary[j].tile))
+				{
+					ok_to_continue = false;
+					swap(aux_dictionary[i], aux_dictionary[0]);
+					break;
+				}
+			}
+		}
+
+		if (ok_to_continue)
+		{
+			for (int i = 0; i < aux_dictionary.size() - 1; i++)
+			{
+				for (int j = i + 1; j < aux_dictionary.size(); j++)
+				{
+					if (aux_dictionary[i].tile->finalpoints < aux_dictionary[j].tile->finalpoints)
+					{
+						swap(aux_dictionary[i], aux_dictionary[j]);
+					}
+					else if (aux_dictionary[i].tile->finalpoints == aux_dictionary[j].tile->finalpoints)
+					{
+						if (aux_dictionary[i].points > aux_dictionary[j].points)
+						{
+							swap(aux_dictionary[i], aux_dictionary[j]);
+						}
+					}
+				}
+			}
+		}
+		
+		for (int i = 0; i < aux_dictionary.size(); i++)
+		{
+			aux_dictionary[i].tile->displayInfo();
+			cout << " " << aux_dictionary[i].points << " " << aux_dictionary[i].tile->finalpoints << endl;
+		}
+	}
+	
+	void Sort_Dictionary_YourEndgame2(vector<dictionary_entry>& aux_dictionary)
+	{
+		// sort dictionary by final points (descending) 
+		// > -> ascending; < -> descending
+		int ok_to_continue = true;
+
+		for (int i = 0; i < aux_dictionary.size() - 1; i++)
+		{
+			for (int j = i + 1; j < aux_dictionary.size(); j++)
+			{
+				if (Tile::CheckSameTile(aux_dictionary[i].tile, aux_dictionary[j].tile))
+				{
+					ok_to_continue = false;
+					swap(aux_dictionary[i], aux_dictionary[0]);
+					break;
+				}
+			}
+		}
+
+		if (ok_to_continue)
+		{
+			for (int i = 0; i < aux_dictionary.size() - 1; i++)
+			{
+				for (int j = i + 1; j < aux_dictionary.size(); j++)
+				{
+					if (aux_dictionary[i].points == aux_dictionary[j].points)
+					{
+						if (aux_dictionary[i].tile->finalpoints > aux_dictionary[j].tile->finalpoints)
+						{
+							swap(aux_dictionary[i], aux_dictionary[j]);
+						}
+					}
+					else
+					{
+						if (aux_dictionary[j].points < aux_dictionary[i].points)
+						{
+							swap(aux_dictionary[i], aux_dictionary[j]);
+						}
+					}
+				}
+			}
+		}
+
+		for (int i = 0; i < aux_dictionary.size(); i++)
+		{
+			aux_dictionary[i].tile->displayInfo();
+			cout << " " << aux_dictionary[i].points << " " << aux_dictionary[i].tile->finalpoints << endl;
+		}
+	}
+
 	void Set_Potential_Formations_Initial(vector <Tile*> remainingt, vector<dictionary_entry>& aux_dictionary)
 	{
 		// get all permutations of 2 tiles and then add joker
@@ -936,20 +1096,6 @@ public:
 		Set_Potential_Formations_Initial(remainingt, aux_dictionary);
 	}
 
-	void Set_Dictionary_Values(vector <Tile*> aux_playerboard, vector<dictionary_entry>& aux_dictionary)
-	{
-		// set final points to tiles in dictionary: 5/10/25/50
-		for (auto& entry : aux_dictionary)
-		{
-			entry.points += entry.tile->finalpoints;
-		}
-
-		// set points for possible formations: 100 in formation; 2 in potential formation
-		vector<Tile*> remainingt; CopyofPlayerboard(remainingt);
-
-		Set_Potential_Formations_Initial(remainingt, aux_dictionary);
-	}
-
 	bool Check_Formation_for_Meldbreak(Formation* formation_to_check)
 	{
 		for (const auto& tile_in_formation : formation_to_check->formationtiles)
@@ -989,6 +1135,238 @@ public:
 	bool Compare_finalpoints_tiles(Tile* a, Tile* b)
 	{
 		return a->finalpoints > b->finalpoints;
+	}
+
+	bool Check_if_replacable_joker(vector <Player*> players)
+	{
+		if (playerboard->board_tiles.size() <= 3)
+		{
+			return false;
+		}
+		for (const auto& p : players)
+		{
+			for (const auto& f : p->formations)
+			{
+				if (f->jokerinformation == true)
+				{
+					for (const auto& t : f->formationtiles)
+					{
+						if (t->type == "joker" && t->getreplacable() == true)
+						{
+							vector<string> col = t->getcolourvector();
+							if (col.size() == 1)
+							{
+								// Formation found here
+								for (const auto& tileplayer : playerboard->board_tiles)
+								{
+									if (tileplayer->getcolour() == t->getcolour() && tileplayer->getnumber() == t->getnumber())
+									{
+										return true;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	void AddTiles_JokerFormation_ToReplace(vector<Player*>& players)
+	{
+		vector<Tile*> aux_playerboard;  aux_playerboard.clear(); CopyofPlayerboard(aux_playerboard);
+
+		if (playerboard->board_tiles.size() >= 2)
+		{
+			bool allgood = false;
+			for (const auto& currentTile : aux_playerboard) // loop through tiles
+			{
+				for (int i = 0; i < players.size(); i++)
+				{
+					for (const auto& form : players[i]->formations)
+					{
+						if (playerboard->board_tiles.size() >= 2 && form->type == "set" && form->jokerinformation == true)
+						{
+							allgood = false;
+							// form->formationid: id formation
+							// i -> player number
+							// currentTile - Tile to be added
+
+							allgood = AddToFormation(form->formationid, currentTile, i, players);
+
+							if (allgood)
+							{
+								cout << "\nTile added: "; currentTile->displayInfo(); cout << endl;
+								cout << "New Formation: \n"; form->displayFormationinfo(); cout << endl << endl;
+								Console::pause_console();
+								break;
+							}
+						}
+					}
+				} if (allgood) break;
+			}
+		}
+	}
+
+	void AddTilesToFormationsBot(vector<Player*>& players)
+	{
+		bool repeat = true;
+		while (repeat)
+		{
+			repeat = false;
+			vector<Tile*> aux_playerboard; aux_playerboard.clear(); CopyofPlayerboard(aux_playerboard);
+			sort(aux_playerboard.begin(), aux_playerboard.end(), [this](const auto& a, const auto& b) {return Compare_finalpoints_tiles(a, b); });
+			Tile::DisplayTiles(aux_playerboard);
+
+			if (playerboard->board_tiles.size() >= 2)
+			{
+				for (const auto& currentTile : aux_playerboard) // loop through tiles
+				{
+					for (int i = 0; i < players.size(); i++)
+					{
+						for (const auto& form : players[i]->formations)
+						{
+							if (playerboard->board_tiles.size() >= 2)
+							{
+								bool allgood = false;
+								// form->formationid: id formation
+								// i -> player number
+								// currentTile - Tile to be added
+								if (currentTile->type == "joker" && form->type == "run")
+								{
+									allgood = AddToFormation(form->formationid, currentTile, i, players, "r");
+									if (!allgood)
+									{
+										allgood = AddToFormation(form->formationid, currentTile, i, players, "l");
+									}
+								}
+								else
+								{
+									allgood = AddToFormation(form->formationid, currentTile, i, players);
+								}
+								if (allgood)
+								{
+									repeat = true;
+									cout << "\nTile added: "; currentTile->displayInfo(); cout << endl;
+									cout << "New Formation: \n"; form->displayFormationinfo(); cout << endl << endl;
+									Console::pause_console();
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+	}
+
+	bool GeneratePermutationReplacingJoker(vector<Tile*>& aux_playerboard, Formation*& result)
+	{
+		// get all permutations of 2 tiles and then add joker
+		for (int i = 0; i < aux_playerboard.size() - 1; i++)
+		{
+			for (int j = i + 1; j < aux_playerboard.size(); j++)
+			{
+				vector<Tile*> aux;
+				aux.clear();
+				aux.push_back(aux_playerboard[i]);
+				aux.push_back(aux_playerboard[j]);
+				aux.push_back(new JokerTile(1));
+				do
+				{
+					vector<Tile*> aux2;
+					aux2.clear();
+					Tile::DeepCopy(aux2, aux);
+					Formation* f = new Formation(aux);
+					if (f->valid)
+					{
+						result = f;
+						return true;
+					}
+					delete f;
+					Formation::formationno--;
+					break;
+				} while (next_permutation(aux.begin(), aux.end()));
+			}
+		}
+		return false;
+	}
+
+	bool ReplaceJokerBotMain(vector<Player*>& players)
+	{
+		bool return_value = false;
+		bool ok = true;
+
+		for (const auto& p : players)
+		{
+			for (auto& ff : p->formations)	// loop through formations of players
+			{
+				if (ff->jokerinformation == true)
+				{
+					for (auto& t : ff->formationtiles)		// loop through tiles of formation to find the joker formation
+					{
+						if (t->type == "joker" && t->getreplacable() == true)
+						{
+							vector<string> col = t->getcolourvector();
+							if (col.size() == 1)				// joker replaces one tile only
+							{
+								// Formation found here
+								for (auto& tileplayer : playerboard->board_tiles)		// loop through tiles to find replacing tile
+								{
+									if (tileplayer->getcolour() == t->getcolour() && tileplayer->getnumber() == t->getnumber())
+									{
+										// Tile found here: tileplayer
+
+										// joker found in formation: ff
+										// formation for player is result
+										// generate vector of all possible permuations 
+										vector<Tile*> aux_playerboard; aux_playerboard.clear(); CopyofPlayerboard(aux_playerboard);
+										for (int k = 0; k < aux_playerboard.size(); k++)
+										{
+											if (Tile::CheckSameTile(aux_playerboard[k], tileplayer))
+											{
+												aux_playerboard.erase(aux_playerboard.begin() + k);
+												break;
+											}
+										}
+										sort(aux_playerboard.begin(), aux_playerboard.end(), [this](const auto& a, const auto& b) {return Compare_finalpoints_tiles(a, b); });
+										Formation* result;
+										bool ok = GeneratePermutationReplacingJoker(aux_playerboard, result);
+										if (ok)
+										{
+											return_value = ReplaceJoker(vector<Formation*> {result}, ff, tileplayer);
+											if (return_value)
+											{
+												return return_value;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return return_value;
+	}
+
+	void ReplaceJokerBot(vector<Player*>& players)
+	{
+		if (ReplaceJokerBotMain(players))
+		{
+			if (Check_if_replacable_joker(players))
+			{
+				// add tiles to set formations that have a joker
+				AddTiles_JokerFormation_ToReplace(players);
+
+				// for each formation with replace j -> check at least 4 tiles on board
+				bool replaced_second_time = ReplaceJokerBotMain(players);
+			}
+		}
+
 	}
 
 	void Memo_Table_Initial(vector <Player*> players)
@@ -1147,7 +1525,7 @@ public:
 	{
 		memotable_firstmeld_withbreak.clear();
 		tile_to_break = queue[queue.size() - 1];
-		cout << "\nTile broken from queue  : "; tile_to_break->displayInfo();  cout << endl << endl;
+		cout << "\Trying to break from queue  : "; tile_to_break->displayInfo();  cout << endl << endl;
 
 		// create aux playerboard
 		vector <Tile*> aux_playerboard;
@@ -1274,286 +1652,205 @@ public:
 		// choose tile to break
 
 		int counter = 0;
-		for (int i = queue.size() - 1; i >= 1 && counter <= counterlimit_meldbreak; i--)
+		if (bottype == "defensive")
 		{
-			tile_to_break = queue[i];
-			cout << "\nTrying to break tile from queue  : "; tile_to_break->displayInfo();  cout << endl;
-			aux_formations.clear();
-
-			// create possible sets and runs
-			// runs: sort by colour then number; sets: sort by number
-
-			aux_playerboard.clear();  CopyofPlayerboard(aux_playerboard); aux_playerboard.push_back(tile_to_break);
-
-			SortForSet(aux_playerboard);
-			CreateSetFormations(aux_playerboard, aux_formations);
-			aux_playerboard.clear(); CopyofPlayerboard(aux_playerboard); aux_playerboard.push_back(tile_to_break);
-
-			SortForRun(aux_playerboard);
-			CreateRunFormations(aux_playerboard, aux_formations);
-			aux_playerboard.clear(); CopyofPlayerboard(aux_playerboard); aux_playerboard.push_back(tile_to_break);
-
-			Console::pause_console();
-
-			for (int k = 0; k < aux_formations.size(); k++)
+			for (int i = queue.size() - 1; i >= 1 && counter <= counterlimit_meldbreak_defensive; i--)
 			{
-				// check aux_formations[k]
-				if (!Check_Formation_for_Meldbreak(aux_formations[k]))
+				tile_to_break = queue[i];
+				cout << "\nTrying to break tile from queue  : "; tile_to_break->displayInfo();  cout << endl;
+				aux_formations.clear();
+
+				// create possible sets and runs
+				// runs: sort by colour then number; sets: sort by number
+
+				aux_playerboard.clear();  CopyofPlayerboard(aux_playerboard); aux_playerboard.push_back(tile_to_break);
+
+				SortForSet(aux_playerboard);
+				CreateSetFormations(aux_playerboard, aux_formations);
+				aux_playerboard.clear(); CopyofPlayerboard(aux_playerboard); aux_playerboard.push_back(tile_to_break);
+
+				SortForRun(aux_playerboard);
+				CreateRunFormations(aux_playerboard, aux_formations);
+				aux_playerboard.clear(); CopyofPlayerboard(aux_playerboard); aux_playerboard.push_back(tile_to_break);
+
+				Console::pause_console();
+
+				for (int k = 0; k < aux_formations.size(); k++)
 				{
-					aux_formations.erase(aux_formations.begin() + k);
+					// check aux_formations[k]
+					if (!Check_Formation_for_Meldbreak(aux_formations[k]))
+					{
+						aux_formations.erase(aux_formations.begin() + k);
+					}
 				}
-			}
 
-			// sort aux_formations
-			sort(aux_formations.begin(), aux_formations.end(), [this](const auto& a, const auto& b) {return Compare_Formations_Break(a, b); });
-			Formation::DisplayFormations(aux_formations);
+				// sort aux_formations
+				sort(aux_formations.begin(), aux_formations.end(), [this](const auto& a, const auto& b) {return Compare_Formations_Break(a, b); });
+				Formation::DisplayFormations(aux_formations);
 
-			for (const auto& form : aux_formations)
-			{
-				bool ok = MeldwithBreak(vector<Formation*> {form}, tile_to_break, queue, i);
-				if (ok == true)
+				for (const auto& form : aux_formations)
 				{
-					form->displayFormationinfo();
-					cout << "\nTile broken from queue  : "; tile_to_break->displayInfo();  cout << endl << endl;
-					tile_to_break = nullptr;
-					return true;
+					bool ok = MeldwithBreak(vector<Formation*> {form}, tile_to_break, queue, i);
+					if (ok == true)
+					{
+						form->displayFormationinfo();
+						cout << "\nTile broken from queue  : "; tile_to_break->displayInfo();  cout << endl << endl;
+						tile_to_break = nullptr;
+						return true;
+					}
 				}
-			}
 
-			// try meld
-			counter++;
+				// try meld
+				counter++;
+			}
 		}
+		else if (bottype == "aggressive")
+		{
+			struct formations_break_meld
+			{
+				vector <Formation*> all_formations;
+				vector <Tile*> tilztobreak;
+				vector<int> positions;
+			}list;
+			
+			for (int i = queue.size() - 1; i >= 1; i--)
+			{
+				tile_to_break = queue[i];
+				cout << "\nTrying to break tile from queue  : "; tile_to_break->displayInfo();  cout << endl;
+				aux_formations.clear();
+
+				// create possible sets and runs
+				// runs: sort by colour then number; sets: sort by number
+
+				aux_playerboard.clear();  CopyofPlayerboard(aux_playerboard); aux_playerboard.push_back(tile_to_break);
+
+				SortForSet(aux_playerboard);
+				CreateSetFormations(aux_playerboard, aux_formations);
+				aux_playerboard.clear(); CopyofPlayerboard(aux_playerboard); aux_playerboard.push_back(tile_to_break);
+
+				SortForRun(aux_playerboard);
+				CreateRunFormations(aux_playerboard, aux_formations);
+				aux_playerboard.clear(); CopyofPlayerboard(aux_playerboard); aux_playerboard.push_back(tile_to_break);
+
+				Console::pause_console();
+
+				for (int k = 0; k < aux_formations.size(); k++)
+				{
+					// check aux_formations[k]
+					if (!Check_Formation_for_Meldbreak(aux_formations[k]))
+					{
+						aux_formations.erase(aux_formations.begin() + k);
+					}
+				}
+
+				// add formations
+				for (int k = 0; k < aux_formations.size(); k++)
+				{
+					list.all_formations.push_back(aux_formations[k]);
+					list.tilztobreak.push_back(tile_to_break);
+					list.positions.push_back(i);
+				}
+			}
+			// sort all_formations
+			if (list.all_formations.size() != 0)
+			{
+				for (int i = 0; i < list.all_formations.size() - 1; i++)
+				{
+					for (int j = i + 1; j < list.all_formations.size(); j++)
+					{
+						if (list.all_formations[i]->points > list.all_formations[j]->points)
+						{
+							swap(list.all_formations[i], list.all_formations[j]);
+							swap(list.tilztobreak[i], list.tilztobreak[j]);
+							swap(list.positions[i], list.positions[j]);
+						}
+						else if (list.all_formations[i]->points == list.all_formations[j]->points)
+						{
+							if (list.positions[i] > list.positions[j])
+							{
+								swap(list.all_formations[i], list.all_formations[j]);
+								swap(list.tilztobreak[i], list.tilztobreak[j]);
+								swap(list.positions[i], list.positions[j]);
+							}
+						}
+					}
+				}
+				Formation::DisplayFormations(list.all_formations);
+
+				for (int i = 0; i < list.all_formations.size(); i++)
+				{
+					bool ok = MeldwithBreak(vector<Formation*> {list.all_formations[i]}, list.tilztobreak[i], queue, list.positions[i]);
+					if (ok == true)
+					{
+						list.all_formations[i]->displayFormationinfo();
+						cout << "\nTile broken from queue  : "; list.tilztobreak[i]->displayInfo();  cout << endl << endl;
+						tile_to_break = nullptr;
+						return true;
+					}
+				}
+			}
+			
+		}
+		else
+		{
+			for (int i = queue.size() - 1; i >= 1 && counter <= 16; i--)
+			{
+				tile_to_break = queue[i];
+				cout << "\nTrying to break tile from queue  : "; tile_to_break->displayInfo();  cout << endl;
+				aux_formations.clear();
+
+				// create possible sets and runs
+				// runs: sort by colour then number; sets: sort by number
+
+				aux_playerboard.clear();  CopyofPlayerboard(aux_playerboard); aux_playerboard.push_back(tile_to_break);
+
+				SortForSet(aux_playerboard);
+				CreateSetFormations(aux_playerboard, aux_formations);
+				aux_playerboard.clear(); CopyofPlayerboard(aux_playerboard); aux_playerboard.push_back(tile_to_break);
+
+				SortForRun(aux_playerboard);
+				CreateRunFormations(aux_playerboard, aux_formations);
+				aux_playerboard.clear(); CopyofPlayerboard(aux_playerboard); aux_playerboard.push_back(tile_to_break);
+
+				Console::pause_console();
+
+				for (int k = 0; k < aux_formations.size(); k++)
+				{
+					// check aux_formations[k]
+					if (!Check_Formation_for_Meldbreak(aux_formations[k]))
+					{
+						aux_formations.erase(aux_formations.begin() + k);
+					}
+				}
+
+				// sort aux_formations
+				sort(aux_formations.begin(), aux_formations.end(), [this](const auto& a, const auto& b) {return Compare_Formations_Break(a, b); });
+				Formation::DisplayFormations(aux_formations);
+
+				for (const auto& form : aux_formations)
+				{
+					bool ok = MeldwithBreak(vector<Formation*> {form}, tile_to_break, queue, i);
+					if (ok == true)
+					{
+						form->displayFormationinfo();
+						cout << "\nTile broken from queue  : "; tile_to_break->displayInfo();  cout << endl << endl;
+						tile_to_break = nullptr;
+						return true;
+					}
+				}
+
+				// try meld
+				counter++;
+			}
+		}
+		
 		Console::pause_console();
 		tile_to_break = nullptr;
 
 		return false;
 	}
 
-	bool Check_if_replacable_joker(vector <Player*> players)
-	{
-		for (const auto& p : players)
-		{
-			for (const auto& f : p->formations)
-			{
-				if (f->jokerinformation == true)
-				{
-					for (const auto& t : f->formationtiles)
-					{
-						if (t->type == "joker" && t->getreplacable() == true)
-						{
-							vector<string> col = t->getcolourvector();
-							if (col.size() == 1)
-							{
-								// Formation found here
-								for (const auto& tileplayer : playerboard->board_tiles)
-								{
-									if (tileplayer->getcolour() == t->getcolour() && tileplayer->getnumber() == t->getnumber())
-									{
-										return true;
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		return false;
-	}
-
-	void AddTiles_JokerFormation_ToReplace(vector<Player*>& players)
-	{
-		vector<Tile*> aux_playerboard;  aux_playerboard.clear(); CopyofPlayerboard(aux_playerboard);
-
-		if (playerboard->board_tiles.size() >= 2)
-		{
-			bool allgood = false;
-			for (const auto& currentTile : aux_playerboard) // loop through tiles
-			{
-				for (int i = 0; i < players.size(); i++)
-				{
-					for (const auto& form : players[i]->formations)
-					{
-						if (playerboard->board_tiles.size() >= 2 && form->type == "set" && form->jokerinformation == true)
-						{
-							allgood = false;
-							// form->formationid: id formation
-							// i -> player number
-							// currentTile - Tile to be added
-							
-							allgood = AddToFormation(form->formationid, currentTile, i, players);
-							
-							if (allgood)
-							{
-								cout << "\nTile added: "; currentTile->displayInfo(); cout << endl;
-								cout << "New Formation: \n"; form->displayFormationinfo(); cout << endl << endl;
-								Console::pause_console();
-								break;
-							}
-						}
-					}
-				} if (allgood) break;
-			}
-		}
-	}
-
-	void AddTilesToFormationsBot(vector<Player*>& players)
-	{
-		vector<Tile*> aux_playerboard; CopyofPlayerboard(aux_playerboard);
-		sort(aux_playerboard.begin(), aux_playerboard.end(), [this](const auto& a, const auto& b) {return Compare_finalpoints_tiles(a, b); });
-		Tile::DisplayTiles(aux_playerboard);
-
-		if (playerboard->board_tiles.size() >= 2)
-		{
-			bool allgood = false;
-			for (const auto& currentTile : aux_playerboard) // loop through tiles
-			{
-				for (int i = 0; i < players.size(); i++)
-				{
-					for (const auto& form : players[i]->formations)
-					{
-						if (playerboard->board_tiles.size() >= 2)
-						{
-							allgood = false;
-							// form->formationid: id formation
-							// i -> player number
-							// currentTile - Tile to be added
-							if (currentTile->type == "joker" && form->type == "run")
-							{
-								allgood = AddToFormation(form->formationid, currentTile, i, players, "r");
-								if (!allgood)
-								{
-									allgood = AddToFormation(form->formationid, currentTile, i, players, "l");
-								}
-							}
-							else
-							{
-								allgood = AddToFormation(form->formationid, currentTile, i, players);
-							}
-							if (allgood)
-							{
-								cout << "\nTile added: "; currentTile->displayInfo(); cout << endl;
-								cout << "New Formation: \n"; form->displayFormationinfo(); cout << endl << endl;
-								Console::pause_console();
-								break;
-							}
-						}
-					}
-				} if (allgood) break;
-			}
-		}
-
-	}
-
-	bool GeneratePermutationReplacingJoker(vector<Tile*>& aux_playerboard, Formation*& result)
-	{
-		// get all permutations of 2 tiles and then add joker
-		for (int i = 0; i < aux_playerboard.size() - 1; i++)
-		{
-			for (int j = i + 1; j < aux_playerboard.size(); j++)
-			{
-				vector<Tile*> aux;
-				aux.clear();
-				aux.push_back(aux_playerboard[i]);
-				aux.push_back(aux_playerboard[j]);
-				aux.push_back(new JokerTile(1));
-				do
-				{
-					vector<Tile*> aux2;
-					aux2.clear();
-					Tile::DeepCopy(aux2, aux);
-					Formation* f = new Formation(aux);
-					if (f->valid)
-					{
-						result = f;
-						return true;
-					}
-					delete f;
-					Formation::formationno--;
-					break;
-				} while (next_permutation(aux.begin(), aux.end()));
-			}
-		}
-		return false;
-	}
-
-	bool ReplaceJokerBotMain(vector<Player*>& players)
-	{
-		bool return_value = false;
-		bool ok = true;
-		
-		for (const auto& p : players)
-		{
-			for (auto& ff : p->formations)	// loop through formations of players
-			{
-				if (ff->jokerinformation == true)
-				{
-					for (auto& t : ff->formationtiles)		// loop through tiles of formation to find the joker formation
-					{
-						if (t->type == "joker" && t->getreplacable() == true)
-						{
-							vector<string> col = t->getcolourvector();
-							if (col.size() == 1)				// joker replaces one tile only
-							{
-								// Formation found here
-								for (auto& tileplayer : playerboard->board_tiles)		// loop through tiles to find replacing tile
-								{
-									if (tileplayer->getcolour() == t->getcolour() && tileplayer->getnumber() == t->getnumber())
-									{
-										// Tile found here: tileplayer
-											
-										// joker found in formation: ff
-										// formation for player is result
-										// generate vector of all possible permuations 
-										vector<Tile*> aux_playerboard; aux_playerboard.clear(); CopyofPlayerboard(aux_playerboard);
-										for (int k =0; k<aux_playerboard.size(); k++)
-										{
-											if (Tile::CheckSameTile(aux_playerboard[k], tileplayer))
-											{
-												aux_playerboard.erase(aux_playerboard.begin() + k);
-												break;
-											}
-										}
-										sort(aux_playerboard.begin(), aux_playerboard.end(), [this](const auto& a, const auto& b) {return Compare_finalpoints_tiles(a, b); });
-										Formation* result;
-										bool ok = GeneratePermutationReplacingJoker(aux_playerboard, result);
-										if (ok)
-										{
-											return_value = ReplaceJoker(vector<Formation*> {result}, ff, tileplayer);
-											if (return_value)
-											{
-												return return_value;
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		return return_value;
-	}
-
-
-	void ReplaceJokerBot(vector<Player*>& players)
-	{
-		if (ReplaceJokerBotMain(players))
-		{
-			if (Check_if_replacable_joker(players))
-			{
-				// add tiles to set formations that have a joker
-				AddTiles_JokerFormation_ToReplace(players);
-
-				// for each formation with replace j -> check at least 4 tiles on board
-				bool replaced_second_time = ReplaceJokerBotMain(players);
-			}
-		}
-
-	}
-
-	void Memo_Table_Meld(vector <Player*>& players)
+	void Memo_Table_Meld(vector <Player*>& players, bool endgame)
 	{
 		memotable_meld.clear();
 
@@ -1613,30 +1910,6 @@ public:
 		sort(memotable_meld.begin(), memotable_meld.end(), [this](const auto& a, const auto& b) {return Memotable_meld_compare(a, b); });
 
 		MemoTableRow::Display_MemoTable(memotable_meld);
-
-
-		// MELDING 
-		bool meld_completed = false;
-		formations_meld.clear();
-		if (aux_result.size() != 0 && playerboard->board_tiles.size() > 3)
-		{
-			for (int k = 0; k < memotable_meld.size(); k++)
-			{
-				if (memotable_meld[k]->formations_to_meld.size() != 0)
-				{
-					for (const auto& f : memotable_meld[0]->formations_to_meld)
-					{
-						formations_meld.push_back(f);
-					}
-					meld_completed = Meld(formations_meld);
-					if (meld_completed)
-					{
-						break;
-					}
-				}
-			}
-		}
-
 		// REPLACE JOKER
 		if (Check_if_replacable_joker(players))
 		{
@@ -1647,26 +1920,158 @@ public:
 			ReplaceJokerBot(players);
 		}
 
-
-		// ADD TO FORMATIONS
-		AddTilesToFormationsBot(players);
-
-		
-
-		// set dictionary values for tile to discard  ----------------------------------
-		aux_playerboard.clear(); CopyofPlayerboard(aux_playerboard);
-		aux_dictionary.clear();
-		for (int i = 0; i < aux_playerboard.size(); i++)
+		if (bottype == "aggressive")
 		{
-			dictionary_entry aux;
-			aux.tile = aux_playerboard[i];
-			aux.points = 0;
-			aux_dictionary.push_back(aux);
+			// MELDING 
+			bool meld_completed = false;
+			formations_meld.clear();
+			if (aux_result.size() != 0 && playerboard->board_tiles.size() > 3)
+			{
+				for (int k = 0; k < memotable_meld.size(); k++)
+				{
+					if (memotable_meld[k]->formations_to_meld.size() != 0)
+					{
+						for (const auto& f : memotable_meld[0]->formations_to_meld)
+						{
+							formations_meld.push_back(f);
+						}
+						meld_completed = Meld(formations_meld);
+						if (meld_completed)
+						{
+							break;
+						}
+					}
+				}
+			}
+
+			// ADD TO FORMATIONS
+			AddTilesToFormationsBot(players);
 		}
-		Set_Dictionary_Values(aux_playerboard, aux_dictionary);
+		else if (bottype == "defensive")
+		{
+			// ADD TO FORMATIONS
+			bool repeat = true;
+			AddTilesToFormationsBot(players);
+
+			// MELDING 
+			bool meld_completed = false;
+			formations_meld.clear();
+			if (aux_result.size() != 0 && playerboard->board_tiles.size() > 3)
+			{
+				for (int k = 0; k < memotable_meld.size(); k++)
+				{
+					if (memotable_meld[k]->formations_to_meld.size() != 0)
+					{
+						for (const auto& f : memotable_meld[0]->formations_to_meld)
+						{
+							formations_meld.push_back(f);
+						}
+						meld_completed = Meld(formations_meld);
+						if (meld_completed)
+						{
+							break;
+						}
+					}
+				}
+			}
+
+			// ADD TO FORMATIONS
+			AddTilesToFormationsBot(players);
+			
+		}
+		else
+		{
+			// MELDING 
+			bool meld_completed = false;
+			formations_meld.clear();
+			if (aux_result.size() != 0 && playerboard->board_tiles.size() > 3)
+			{
+				for (int k = 0; k < memotable_meld.size(); k++)
+				{
+					if (memotable_meld[k]->formations_to_meld.size() != 0)
+					{
+						for (const auto& f : memotable_meld[0]->formations_to_meld)
+						{
+							formations_meld.push_back(f);
+						}
+						meld_completed = Meld(formations_meld);
+						if (meld_completed)
+						{
+							break;
+						}
+					}
+				}
+			}
+
+			// ADD TO FORMATIONS
+			bool repeat = true;
+			while (repeat)
+			{
+				repeat = false;
+				aux_playerboard.clear(); CopyofPlayerboard(aux_playerboard);
+				sort(aux_playerboard.begin(), aux_playerboard.end(), [this](const auto& a, const auto& b) {return Compare_finalpoints_tiles(a, b); });
+				Tile::DisplayTiles(aux_playerboard);
+
+				if (playerboard->board_tiles.size() >= 2)
+				{
+					for (const auto& currentTile : aux_playerboard) // loop through tiles
+					{
+						for (int i = 0; i < players.size(); i++)
+						{
+							for (const auto& form : players[i]->formations)
+							{
+								if (playerboard->board_tiles.size() >= 2)
+								{
+									bool allgood = false;
+									// form->formationid: id formation
+									// i -> player number
+									// currentTile - Tile to be added
+									if (currentTile->type == "joker" && form->type == "run")
+									{
+										allgood = AddToFormation(form->formationid, currentTile, i, players, "r");
+										if (!allgood)
+										{
+											allgood = AddToFormation(form->formationid, currentTile, i, players, "l");
+										}
+									}
+									else
+									{
+										allgood = AddToFormation(form->formationid, currentTile, i, players);
+									}
+									if (allgood)
+									{
+										repeat = true;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// set dictionary values for tile to discard
+		CopyofPlayerboard(aux_playerboard);
+		Set_Dictionary_Values_Initial(aux_playerboard, aux_dictionary, aux_formations);
 
 		// sort dictionary
-		Sort_Dictionary(aux_dictionary);
+		if (endgame)
+		{
+			Sort_Dictionary_Endgame(aux_dictionary);
+		}
+		else if (playerboard->board_tiles.size() == 3)
+		{
+			Sort_Dictionary_YourEndgame2(aux_dictionary);
+		}
+		else if (playerboard->board_tiles.size()<=2)
+		{
+			Sort_Dictionary_YourEndgame(aux_dictionary);
+		}
+		else
+		{
+			Sort_Dictionary(aux_dictionary);
+		}
+		
 
 		// set tile to discard
 		tile_to_discard = aux_dictionary[0].tile;

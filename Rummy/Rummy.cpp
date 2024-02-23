@@ -28,7 +28,9 @@ int main()
 
 	Game game;
 
-	vector <Player*> players = Player::InitialiseNPlayerBots(4); 
+	vector <Player*> players = Player::InitialiseNPlayerBots(4,2,2);
+
+	//vector <Player*> players = Player::InitialiseNPlayerBots(4); 
 	//vector <Player*> players = Player::InitialisePlayers();
 
 
@@ -54,31 +56,29 @@ int main()
 	// FIRST RUN ------------------------------------------------------------------------------
 
 
+	for (int i = 1; i < 10; i++)
+	{
+		// MULTIPLE RUNS ------------------------------------------------------------------------------
 
+		// alltiles
+		alltiles = Tile::CreateTiles();
 
+		// stacksqueue and divide to players
+		stacks = Tile::CreateStacks(alltiles);
+		Tile::DisplayStacks(stacks);
+		stackqueue = game.DivideStacks(stacks, alltiles, players);
+		cout << "Stacks queue:" << endl;
+		Tile::DisplayTiles(stackqueue); cout << endl;
 
-	//// MULTIPLE RUNS ------------------------------------------------------------------------------
-	//
-	//// alltiles
-	//alltiles = Tile::CreateTiles();
-	//
-	//// stacksqueue and divide to players
-	//stacks = Tile::CreateStacks(alltiles);
-	//Tile::DisplayStacks(stacks);
-	//stackqueue = game.DivideStacks(stacks, alltiles, players); 
-	//cout << "Stacks queue:" << endl;
-	//Tile::DisplayTiles(stackqueue); cout << endl;
+		//queue
 
-	////queue
+		//match
+		game.Match(players, stackqueue, alltiles, queue);
+		rummy_console.pause_console();
 
-	////match
-	//game.Match(players, stackqueue, alltiles, queue); 
-	//rummy_console.pause_console(); 
+		// MULTIPLE RUNS ------------------------------------------------------------------------------
 
-	//// MULTIPLE RUNS ------------------------------------------------------------------------------
-
-
-	
+	}
 	return 0;
 }
 

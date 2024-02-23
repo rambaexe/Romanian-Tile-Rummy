@@ -1218,7 +1218,7 @@ public:
 		playertype = "player";
 	}
 
-	void displayPlayerinfo() const
+	void virtual displayPlayerinfo() const
 	{
 		if (playertype == "bot")
 		{
@@ -1230,7 +1230,7 @@ public:
 		cout << endl;
 	}
 
-	void displayPlayername() const
+	void virtual displayPlayername() const
 	{
 		cout << "PLAYER " << playerno << endl;
 	}
@@ -1284,6 +1284,8 @@ public:
 	}
 
 	static vector <Player*> InitialiseNPlayerBots(int n);
+
+	static vector <Player*> InitialiseNPlayerBots(int n, int agg_no, int def_no);
 
 	static Player* get_Player(int no, vector<Player*> players)
 	{
@@ -2107,6 +2109,21 @@ vector <Player*> Player::InitialiseNPlayerBots(int n)
 	return players;
 }
 
+vector <Player*> Player::InitialiseNPlayerBots(int n, int agg_no, int def_no)
+{
+	number_of_players = 0;
+	vector <Player*> players;
+	for (int i = 1; i <= agg_no; i++)
+	{
+		players.push_back(new PlayerBot("aggressive"));
+	}
+	for (int i = 1; i <= def_no; i++)
+	{
+		players.push_back(new PlayerBot("defensive"));
+	}
+	return players;
+}
+
 
 class Game
 {
@@ -2115,6 +2132,8 @@ public:
 	int roundpointer;
 	int matchpointer;
 	int gameno;
+
+	Tile* atu_tile_match;
 
 	Game()
 	{
@@ -2245,6 +2264,7 @@ public:
 	{
 		matchmultiplier = 1;
 		roundpointer = 0;
+		atu_tile_match = nullptr;
 
 		alltiles.clear();
 		stackqueue.clear();
@@ -2252,12 +2272,11 @@ public:
 
 		for (const auto& player : players)
 		{
-			player->total_points += player->match_points;
 			player->ResetPlayer();
 			PlayerBot* bot = dynamic_cast<PlayerBot*>(player);
 			if (bot)
 			{
-				bot->ResetBot();
+				bot->ResetPlayerBot();
 			}
 		}
 
@@ -2289,9 +2308,10 @@ public:
 
 	void displayPlayerInformationinRound(vector <Player*>& players, vector <Tile*>& stackqueue, vector <Tile*>& queue)
 	{
-		if (stackqueue[stackqueue.size() - 1]->atu == true)
+		
+		if (atu_tile_match->atu == true)
 		{
-			cout << "Atu: "; stackqueue[stackqueue.size() - 1]->displayInfo();  cout << endl << endl;
+			cout << "Atu: "; atu_tile_match->displayInfo();  cout << endl << endl;
 		}
 		cout << "Stacks Queue:" << endl; Tile::DisplayTiles(stackqueue); cout << endl;
 		cout << "Queue:" << endl;  Tile::DisplayTiles(queue); cout << endl;
@@ -4347,6 +4367,7 @@ public:
 		// atu: stackqueue[stackqueue.size() -1] 
 		if (stackqueue[stackqueue.size() - 1]->atu == true)
 		{
+			atu_tile_match = stackqueue[stackqueue.size() - 1];
 			// set multiplier for ATU tile
 			if (stackqueue[stackqueue.size() - 1]->type == "joker")
 			{
@@ -4407,6 +4428,19 @@ public:
 				bool foundtiletobreak = false;
 				bool firstmeldround = false;
 
+				bool endgame = false;
+				for (const auto& player : players)
+				{
+					if (player->playerboard->board_tiles.size()<3)
+					{
+						if (bot->playerboard->board_tiles.size() >= 3)
+						{
+							endgame = true;
+							break;
+						}
+					}
+				}
+
 				// DRAW TILE OR BREAK FROM QUEUE
 				Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
 
@@ -4435,16 +4469,6 @@ public:
 						players[roundpointer]->playerboard->tilesnoboard++;
 						stackqueue.erase(stackqueue.begin());
 						Console::pause_console();
-
-
-
-
-						// COMPLETE WITH CODE
-
-
-
-
-
 					}
 					else if (players[roundpointer]->playerboard->board_tiles.size() == 2) // 2 tiles left
 					{
@@ -4455,16 +4479,6 @@ public:
 						players[roundpointer]->playerboard->tilesnoboard++;
 						stackqueue.erase(stackqueue.begin());
 						Console::pause_console();
-
-
-
-
-						// COMPLETE WITH CODE
-
-
-
-
-
 					}
 					else		// OTHER ROUNDS: CHOICE: BREAK OR NO BREAK FOR FIRST MELD
 					{
@@ -4514,9 +4528,8 @@ public:
 
 				if (bot->firstmeld && !firstmeldround)
 				{
-					bot->Memo_Table_Meld(players);
+					bot->Memo_Table_Meld(players, endgame);
 				}
-
 
 				// END OF ROUND - DISCARD TILE IN QUEUE
 				Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
@@ -4559,6 +4572,10 @@ public:
 					for (const auto& p : players)
 					{
 						p->match_points *= matchmultiplier;
+					}
+					for (const auto& p : players)
+					{
+						p->total_points += p->match_points;
 					}
 					break;
 				}
