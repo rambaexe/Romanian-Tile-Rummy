@@ -1287,6 +1287,8 @@ public:
 
 	static vector <Player*> InitialiseNPlayerBots(int n, int agg_no, int def_no);
 
+	static vector <Player*> InitialiseNPlayerBots2(int n, int agg_no, int def_no);
+
 	static Player* get_Player(int no, vector<Player*> players)
 	{
 		for (const auto& player : players)
@@ -1863,7 +1865,7 @@ public:
 					{
 						if (Tile::CheckSameTile(tile, aux_playerboard[i]))
 						{
-							aux_playerboard.erase(aux_playerboard.begin()+1);
+							aux_playerboard.erase(aux_playerboard.begin()+i);
 						}
 					}
 				}
@@ -2113,13 +2115,28 @@ vector <Player*> Player::InitialiseNPlayerBots(int n, int agg_no, int def_no)
 {
 	number_of_players = 0;
 	vector <Player*> players;
-	for (int i = 1; i <= agg_no; i++)
+	for (int i = 0; i < agg_no; i++)
 	{
 		players.push_back(new PlayerBot("aggressive"));
 	}
-	for (int i = 1; i <= def_no; i++)
+	for (int i = 0; i < def_no; i++)
 	{
 		players.push_back(new PlayerBot("defensive"));
+	}
+	return players;
+}
+
+vector <Player*> Player::InitialiseNPlayerBots2(int n, int agg_no, int def_no)
+{
+	number_of_players = 0;
+	vector <Player*> players;
+	for (int i = 0; i < def_no; i++)
+	{
+		players.push_back(new PlayerBot("defensive"));
+	}
+	for (int i = 0; i < agg_no; i++)
+	{
+		players.push_back(new PlayerBot("aggressive"));
 	}
 	return players;
 }
@@ -2379,6 +2396,66 @@ public:
 		DisplayPlayerswithFormations(players);
 		cout << "\n";
 		Game::displayPlayerInformationinRound(players, stackqueue, queue);
+	}
+
+	void OutputToExcel(vector <Player*>& players, vector <Tile*>& stackqueue, vector <Tile*>& queue, int ct)
+	{
+		ofstream fout;
+		fout.open("test_heh.txt", ios::app);
+		fout << gameno << "\t";
+		fout << (ct - 1) / Player::number_of_players + 1 << "\t";
+		for (auto& player : players)
+		{
+			PlayerBot* bot = dynamic_cast<PlayerBot*>(player);
+
+			if (bot)
+			{
+				fout << bot->bottype.substr(0, 3) << "\t";
+			}
+		}
+		
+		for (auto& player : players)
+		{
+			PlayerBot* bot = dynamic_cast<PlayerBot*>(player);
+			if (bot)
+			{
+				fout << bot->playerboard->board_tiles.size() << "\t";
+				fout << bot->match_points << "\t";
+				fout << bot->total_points << "\t";
+			}
+		}
+		fout << "\n";
+		
+		fout.close();
+	}
+
+	static void OutputToExcel_beginning(vector <Player*>& players, vector <Tile*>& stackqueue, vector <Tile*>& queue)
+	{
+		ofstream fout;
+		fout.open("test_heh.txt", ios::app);
+		fout << "Game\t" << "Rounds\t";
+		for (auto& player : players)
+		{
+			PlayerBot* bot = dynamic_cast<PlayerBot*>(player);
+
+			if (bot)
+			{
+				fout << "BOT" << bot->playerno << "\t";
+			}
+		}
+		for (auto& player : players)
+		{
+			PlayerBot* bot = dynamic_cast<PlayerBot*>(player);
+
+			if (bot)
+			{
+				fout << "BOT " << bot->playerno << " Remaining Tiles\t";
+				fout << "BOT " << bot->playerno << " Game Points\t";
+				fout << "BOT " << bot->playerno << " Total Points\t";
+			}
+		}
+		fout << "\n";
+		fout.close();
 	}
 
 	bool FirstMeldGame(vector <Player*>& players, vector <Tile*>& stackqueue, vector <Tile*>& queue, int& ct)
@@ -4412,6 +4489,7 @@ public:
 		// ROUNDS
 		// current player: players[roundpointer] or bot 
 		int ct = 1; // round counter 
+
 		while (true)
 		{
 			// COMPUTER BOT
@@ -5103,6 +5181,8 @@ public:
 		Game::DisplayOnTopScreen(players, stackqueue, queue, ct);
 		DisplayStats(players);
 		Console::clean_screen();
+
+		OutputToExcel(players, stackqueue, queue, ct);
 
 		Reset_Match(players, stackqueue, alltiles, queue);
 

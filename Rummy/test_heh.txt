@@ -1,0 +1,39 @@
+A-A-D-D
+
+
+
+
+
+
+
+
+
+
+
+
+
+A-D-D-D
+
+
+
+
+
+
+
+
+
+
+
+
+D-D-D-D
+Game	Rounds	BOT1	BOT2	BOT3	BOT4	BOT 1 Remaining Tiles	BOT 1 Game Points	BOT 1 Total Points	BOT 2 Remaining Tiles	BOT 2 Game Points	BOT 2 Total Points	BOT 3 Remaining Tiles	BOT 3 Game Points	BOT 3 Total Points	BOT 4 Remaining Tiles	BOT 4 Game Points	BOT 4 Total Points	
+1	10	def	def	agg	agg	1	165	165	0	250	250	3	65	65	1	170	170	
+2	8	def	def	agg	agg	3	125	290	14	-100	150	0	250	315	14	-100	70	
+3	9	def	def	agg	agg	0	245	535	14	-100	50	5	160	475	3	200	270	
+4	10	def	def	agg	agg	2	145	680	2	210	260	0	160	635	3	150	420	
+5	13	def	def	agg	agg	11	-15	665	0	215	475	2	120	755	1	190	610	
+6	11	def	def	agg	agg	0	175	840	5	100	575	14	-100	655	14	-100	510	
+7	8	def	def	agg	agg	14	-100	740	2	155	730	0	165	820	3	205	715	
+8	12	def	def	agg	agg	1	160	900	0	165	895	6	235	1055	1	155	870	
+9	8	def	def	agg	agg	0	310	1210	2	160	1055	3	320	1375	2	280	1150	
+10	9	def	def	agg	agg	6	25	1235	0	195	1250	8	70	1445	6	140	1290	

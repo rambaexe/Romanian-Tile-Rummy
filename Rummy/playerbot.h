@@ -2,6 +2,7 @@
 #define playerbot
 
 # define counterlimit_meldbreak_defensive 8
+# define counterlimit_meldbreak_aggressive 16
 #include <unordered_map>
 #include <vector>
 #include <algorithm>
@@ -162,7 +163,6 @@ public:
 	{
 		tile_to_discard = nullptr;
 		tile_to_break = nullptr;
-		bottype.clear();
 	}
 
 	void Removetilefromboard(Tile* t)
@@ -1713,7 +1713,7 @@ public:
 				vector<int> positions;
 			}list;
 			
-			for (int i = queue.size() - 1; i >= 1; i--)
+			for (int i = queue.size() - 1; i >= 1 && counter<counterlimit_meldbreak_aggressive; i--)
 			{
 				tile_to_break = queue[i];
 				cout << "\nTrying to break tile from queue  : "; tile_to_break->displayInfo();  cout << endl;
@@ -1750,6 +1750,7 @@ public:
 					list.tilztobreak.push_back(tile_to_break);
 					list.positions.push_back(i);
 				}
+				counter++;
 			}
 			// sort all_formations
 			if (list.all_formations.size() != 0)
