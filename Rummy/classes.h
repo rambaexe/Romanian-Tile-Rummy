@@ -1283,12 +1283,6 @@ public:
 		return players;
 	}
 
-	static vector <Player*> InitialiseNPlayerBots(int n);
-
-	static vector <Player*> InitialiseNPlayerBots(int n, int agg_no, int def_no);
-
-	static vector <Player*> InitialiseNPlayerBots2(int n, int agg_no, int def_no);
-
 	static Player* get_Player(int no, vector<Player*> players)
 	{
 		for (const auto& player : players)
@@ -2100,48 +2094,6 @@ public:
 
 int Player::number_of_players = 0;
 
-vector <Player*> Player::InitialiseNPlayerBots(int n)
-{
-	number_of_players = 0;
-	vector <Player*> players;
-	for (int i = 1; i <= n; i++)
-	{
-		players.push_back(new PlayerBot());
-	}
-	return players;
-}
-
-vector <Player*> Player::InitialiseNPlayerBots(int n, int agg_no, int def_no)
-{
-	number_of_players = 0;
-	vector <Player*> players;
-	for (int i = 0; i < agg_no; i++)
-	{
-		players.push_back(new PlayerBot("aggressive"));
-	}
-	for (int i = 0; i < def_no; i++)
-	{
-		players.push_back(new PlayerBot("defensive"));
-	}
-	return players;
-}
-
-vector <Player*> Player::InitialiseNPlayerBots2(int n, int agg_no, int def_no)
-{
-	number_of_players = 0;
-	vector <Player*> players;
-	for (int i = 0; i < def_no; i++)
-	{
-		players.push_back(new PlayerBot("defensive"));
-	}
-	for (int i = 0; i < agg_no; i++)
-	{
-		players.push_back(new PlayerBot("aggressive"));
-	}
-	return players;
-}
-
-
 class Game
 {
 public:
@@ -2420,8 +2372,30 @@ public:
 			if (bot)
 			{
 				fout << bot->playerboard->board_tiles.size() << "\t";
-				fout << bot->match_points << "\t";
+			}
+		}
+		for (auto& player : players)
+		{
+			PlayerBot* bot = dynamic_cast<PlayerBot*>(player);
+			if (bot)
+			{
+				fout << bot->formations.size() << "\t";
+			}
+		}
+		for (auto& player : players)
+		{
+			PlayerBot* bot = dynamic_cast<PlayerBot*>(player);
+			if (bot)
+			{
 				fout << bot->total_points << "\t";
+			}
+		}
+		for (auto& player : players)
+		{
+			PlayerBot* bot = dynamic_cast<PlayerBot*>(player);
+			if (bot)
+			{
+				fout << bot->match_points << "\t";
 			}
 		}
 		fout << "\n";
@@ -2446,14 +2420,36 @@ public:
 		for (auto& player : players)
 		{
 			PlayerBot* bot = dynamic_cast<PlayerBot*>(player);
-
 			if (bot)
 			{
-				fout << "BOT " << bot->playerno << " Remaining Tiles\t";
-				fout << "BOT " << bot->playerno << " Game Points\t";
+				fout << "BOT " << bot->playerno << " Remaining Tiles No.\t";
+			}
+		}
+		for (auto& player : players)
+		{
+			PlayerBot* bot = dynamic_cast<PlayerBot*>(player);
+			if (bot)
+			{
+				fout << "BOT " << bot->playerno << " Melded Formations No.\t";
+			}
+		}
+		for (auto& player : players)
+		{
+			PlayerBot* bot = dynamic_cast<PlayerBot*>(player);
+			if (bot)
+			{
 				fout << "BOT " << bot->playerno << " Total Points\t";
 			}
 		}
+		for (auto& player : players)
+		{
+			PlayerBot* bot = dynamic_cast<PlayerBot*>(player);
+			if (bot)
+			{
+				fout << "BOT " << bot->playerno << " Game Points\t";
+			}
+		}
+		
 		fout << "\n";
 		fout.close();
 	}

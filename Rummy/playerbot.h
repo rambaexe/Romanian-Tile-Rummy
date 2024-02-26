@@ -165,6 +165,58 @@ public:
 		tile_to_break = nullptr;
 	}
 
+	static vector <Player*> InitialiseNPlayerBots(int n)
+	{
+		number_of_players = 0;
+		vector <Player*> players;
+		for (int i = 1; i <= n; i++)
+		{
+			players.push_back(new PlayerBot());
+		}
+		return players;
+	}
+
+	static vector <Player*> InitialiseNPlayerBotsAD(int n, int agg_no, int def_no)
+	{
+		number_of_players = 0;
+		vector <Player*> players;
+		for (int i = 0; i < agg_no; i++)
+		{
+			players.push_back(new PlayerBot("aggressive"));
+		}
+		for (int i = 0; i < def_no; i++)
+		{
+			players.push_back(new PlayerBot("defensive"));
+		}
+		return players;
+	}
+
+	static vector <Player*> InitialiseNPlayerBotsDA(int n, int agg_no, int def_no)
+	{
+		number_of_players = 0;
+		vector <Player*> players;
+		for (int i = 0; i < def_no; i++)
+		{
+			players.push_back(new PlayerBot("defensive"));
+		}
+		for (int i = 0; i < agg_no; i++)
+		{
+			players.push_back(new PlayerBot("aggressive"));
+		}
+		return players;
+	}
+
+	static vector <Player*> InitialiseNPlayerBotsDADA(int n)
+	{
+		number_of_players = 0;
+		vector <Player*> players;
+		players.push_back(new PlayerBot("defensive"));
+		players.push_back(new PlayerBot("aggressive"));
+		players.push_back(new PlayerBot("defensive"));
+		players.push_back(new PlayerBot("aggressive"));
+		return players;
+	}
+
 	void Removetilefromboard(Tile* t)
 	{
 		for (int i = 0; i < playerboard->board_tiles.size(); i++)

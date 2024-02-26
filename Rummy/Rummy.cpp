@@ -34,8 +34,11 @@ int main()
 
 	Game game;
 
-	vector <Player*> players = Player::InitialiseNPlayerBots2(4,2,2);
 
+	vector <Player*> players = PlayerBot::InitialiseNPlayerBotsDA(4,0,4);
+	int number_of_matches = 10;
+
+	//vector <Player*> players = Player::InitialiseNPlayerBotsDA(2,1,1);
 	//vector <Player*> players = Player::InitialiseNPlayerBots(4); 
 	//vector <Player*> players = Player::InitialisePlayers();
 
@@ -64,7 +67,7 @@ int main()
 
 	// FIRST RUN ------------------------------------------------------------------------------
 
-	for (int i = 1; i < 10; i++)
+	for (int i = 1; i < number_of_matches; i++)
 	{
 		// MULTIPLE RUNS ------------------------------------------------------------------------------
 
