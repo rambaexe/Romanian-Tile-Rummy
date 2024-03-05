@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include "console_h.h"
-#include "classes.h"
+#include "classes.h" 
 #include <iostream>
 #include <vector>
 #include <string>
@@ -146,12 +146,25 @@ void testformations()
 	cout << "-------------------------------------- SET ------------------------------" << endl;
 
 	tiles.clear();
-	tiles.push_back(new NormalTile("red", 2, 0));
-	tiles.push_back(new NormalTile("yellow", 2, 0));
-	tiles.push_back(new NormalTile("blue", 2, 0));
+	tiles.push_back(new NormalTile("red", 12, 0));
+	tiles.push_back(new NormalTile("yellow", 12, 0));
+	tiles.push_back(new NormalTile("blue", 12, 0));
 	form.push_back(new Formation(tiles, "set"));
 
 	tiles.clear();
+	tiles.push_back(new NormalTile("red", 2, 0));
+	tiles.push_back(new NormalTile("red", 2, 0));
+	tiles.push_back(new NormalTile("yellow", 2, 0));
+	form.push_back(new Formation(tiles, "set"));
+
+	tiles.clear();
+	tiles.push_back(new NormalTile("red", 2, 0));
+	tiles.push_back(new NormalTile("black", 2, 0));
+	tiles.push_back(new NormalTile("blue", 2, 0));
+	tiles.push_back(new NormalTile("yellow", 2, 0));
+	tiles.push_back(new JokerTile(1));
+	form.push_back(new Formation(tiles, "set"));
+	/*tiles.clear();
 	tiles.push_back(new NormalTile("red", 2, 0));
 	tiles.push_back(new NormalTile("black", 2, 0));
 	tiles.push_back(new NormalTile("blue", 2, 0));
@@ -162,7 +175,7 @@ void testformations()
 	tiles.push_back(new NormalTile("black", 2, 0));
 	tiles.push_back(new NormalTile("blue", 2, 0));
 	tiles.push_back(new NormalTile("yellow", 2, 0));
-	form.push_back(new Formation(tiles, "set"));
+	form.push_back(new Formation(tiles, "set"));*/
 
 	tiles.clear();
 	tiles.push_back(new NormalTile("red", 2, 0));
@@ -199,20 +212,6 @@ void testformations()
 	tiles.push_back(new NormalTile("yellow", 2, 0));
 	form.push_back(new Formation(tiles, "set"));
 
-	tiles.clear();
-	tiles.push_back(new NormalTile("red", 2, 0));
-	tiles.push_back(new NormalTile("red", 2, 0));
-	tiles.push_back(new JokerTile(1));
-	tiles.push_back(new NormalTile("yellow", 2, 0));
-	form.push_back(new Formation(tiles, "set"));
-
-	tiles.clear();
-	tiles.push_back(new NormalTile("red", 2, 0));
-	tiles.push_back(new NormalTile("black", 2, 0));
-	tiles.push_back(new NormalTile("blue", 2, 0));
-	tiles.push_back(new NormalTile("yellow", 2, 0));
-	tiles.push_back(new JokerTile(1));
-	form.push_back(new Formation(tiles, "set"));
 
 
 	for (const auto& f : form)

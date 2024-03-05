@@ -8,7 +8,7 @@ HANDLE console;
 
 #define green 10
 #define red 12
-#define yellow 14
+#define yellow 14 
 #define white 15
 #define blue 9
 
@@ -29,7 +29,7 @@ public:
     static void pause_console()
     {
         cout << endl;
-        //system("pause");
+        system("pause");
     }
 
     static void setConsoleColour(int k)

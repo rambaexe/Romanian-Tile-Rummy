@@ -1322,6 +1322,28 @@ public:
 		cin >> pcolour;
 		return pcolour;
 	}
+	
+	// implement binary search for tiles in sorted list
+	int BinarySearchTile(vector<Tile*> tiles, int l, int r, Tile* t)
+	{
+		if (r >= l)
+		{
+			int mid = l + (r - l) / 2;
+			if (Tile::CheckSameTile(tiles[mid],t))
+			{
+				return mid;
+			}
+			else if (tiles[mid]->getnumber() > t->getnumber())
+			{
+				return BinarySearchTile(tiles, l, mid - 1, t);
+			}
+			else
+			{
+				return BinarySearchTile(tiles, mid + 1, r, t);
+			}
+		}
+		return -1;
+	}
 
 	int getPlayerOption1()
 	{
@@ -1679,7 +1701,7 @@ public:
 			return true;
 		}
 		return false;
-	}
+	} 
 
 	bool checkTilesonBoard(vector<Tile*> tiles)
 	{

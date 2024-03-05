@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Tile">
+    <Position X="5.25" Y="4.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AEgAAABAAAiABAiiABAIIAQAATAJGAAAkAAAIAQEQQA=</HashCode>
+      <FileName>classes.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="NormalTile">
+    <Position X="8.25" Y="4.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>EAAAAAAAAAAAQAAAABAAAAYAAQAAAAAAAAAAIAAAAAA=</HashCode>
+      <FileName>classes.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="JokerTile">
+    <Position X="2.5" Y="4.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAABAEAAAQAAgABAAAAQAARIAAAAAEAAAIAAEQAA=</HashCode>
+      <FileName>classes.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Board" Collapsed="true">
+    <Position X="8.5" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAACAAAAAEAAAAAIAAAAGAAAAA=</HashCode>
+      <FileName>classes.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Formation" Collapsed="true">
+    <Position X="15.75" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>QAAABADggAEAMAAAAEgABAIAAAABAAAAIQAAAAAKAAU=</HashCode>
+      <FileName>classes.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Player" Collapsed="true">
+    <Position X="5.5" Y="0.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>QAICCQAAAAAAAECqAAAAYgEEAAQgABCAwCAAASAIApE=</HashCode>
+      <FileName>classes.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Game" Collapsed="true">
+    <Position X="10.75" Y="0.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>gQAAQgQYAACQAQAAgAAAAABAESgACAAAAAIgAWAgAAA=</HashCode>
+      <FileName>classes.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Console" Collapsed="true">
+    <Position X="13.5" Y="0.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AACAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAgAEAAA=</HashCode>
+      <FileName>console_h.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

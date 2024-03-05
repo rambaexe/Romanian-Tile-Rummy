@@ -12,15 +12,10 @@ struct dictionary_entry {
 	Tile* tile;
 };
 
-
-
 class MemoTableRow
 {
 public:
 	vector <Formation*> formations_to_meld;
-	vector <Tile*> tiles_to_add;
-	vector <Tile*> tiles_replacing_joker;
-	Tile* tile_to_break;
 	vector <Tile*> other_tiles;
 
 	int potential_points_down;
@@ -86,9 +81,6 @@ public:
 	{
 		cout << "Formations:\n"; Formation::DisplayFormations(formations_to_meld);
 		cout << "Other Tiles: "; Tile::DisplayTiles(other_tiles);
-		cout << "Tiles to add to other formations: "; Tile::DisplayTiles(tiles_to_add);
-		cout << "Tiles to replace joker: "; Tile::DisplayTiles(tiles_replacing_joker);
-		cout << "Broken Tile: "; cout << endl; // tile_to_break->displayInfo();
 		cout << "Potential Points Down: " << potential_points_down; cout << endl;
 		cout << "Potential Points Final: " << potential_points_final; cout << endl;
 	}
@@ -98,6 +90,7 @@ public:
 
 	}
 };
+
 class PlayerBot : public Player
 {
 public:
@@ -2023,7 +2016,7 @@ public:
 						if (meld_completed)
 						{
 							break;
-						}
+						} 
 					}
 				}
 			}
@@ -2128,7 +2121,7 @@ public:
 
 		// set tile to discard
 		tile_to_discard = aux_dictionary[0].tile;
-		cout << "Tile to discard: "; tile_to_discard->displayInfo(); cout << endl;
+		cout << "Tile to discard: "; tile_to_discard->displayInfo(); cout << endl; 
 
 		Console::pause_console();
 	}

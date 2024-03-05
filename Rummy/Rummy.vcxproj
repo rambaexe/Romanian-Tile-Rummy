@@ -136,7 +136,8 @@
     <ClInclude Include="test.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ClassDiagram.cd" />
+    <None Include="ClassDiagram_basegame3.cd" />
+    <None Include="ClassDiagram_playerbot2.cd" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="test_heh.txt" />

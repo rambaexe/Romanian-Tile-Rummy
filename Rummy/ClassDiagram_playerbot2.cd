@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="MemoTableRow" Collapsed="true">
+    <Position X="4.25" Y="0.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAQEAAgAIAAABAAAQAAAAAIAAACIIAAAAAAAAAAAAAg=</HashCode>
+      <FileName>playerbot.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PlayerBot" Collapsed="true">
+    <Position X="1" Y="1.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>CDBLlgAAAGACLwCAIgETOW0oEIKAAoAYCgKTAAASABE=</HashCode>
+      <FileName>playerbot.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Player" Collapsed="true">
+    <Position X="1" Y="0.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>QAICCQAAAAAAAECqAAAAYgEEAAQgABCAwCAAASAIApE=</HashCode>
+      <FileName>classes.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="dictionary_entry" Collapsed="true">
+    <Position X="4.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAABAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>playerbot.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

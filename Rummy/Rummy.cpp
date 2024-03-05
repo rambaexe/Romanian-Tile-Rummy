@@ -35,18 +35,16 @@ int main()
 	Game game;
 
 
-	vector <Player*> players = PlayerBot::InitialiseNPlayerBotsDA(4,0,4);
+	vector <Player*> players = PlayerBot::InitialiseNPlayerBotsDA(4,2,2);
 	int number_of_matches = 10;
 
-	//vector <Player*> players = Player::InitialiseNPlayerBotsDA(2,1,1);
-	//vector <Player*> players = Player::InitialiseNPlayerBots(4); 
 	//vector <Player*> players = Player::InitialisePlayers();
 
 
 	// FIRST RUN ------------------------------------------------------------------------------
 	
 	// all tiles
-	vector <Tile*> alltiles = Tile::CreateTiles(); 
+	vector <Tile*> alltiles = Tile::CreateTiles();  
 
 	// stacksqueue and divide to players
 	vector <vector <Tile*>> stacks = Tile::CreateStacks(alltiles); 
